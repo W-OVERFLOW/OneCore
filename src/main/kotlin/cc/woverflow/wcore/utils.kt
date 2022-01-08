@@ -1,5 +1,6 @@
 package cc.woverflow.wcore
 
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.Multithreading
@@ -9,6 +10,7 @@ import gg.essential.vigilance.Vigilant
 import java.io.File
 import java.io.IOException
 import java.net.URI
+import kotlin.jvm.Throws
 
 private val parser = JsonParser()
 
@@ -16,7 +18,8 @@ fun String.containsAny(vararg sequences: CharSequence?) = sequences.any { it != 
 
 fun String.asJsonObject() = parser.parse(this).asJsonObject
 
-fun WebUtil.fetchJson(url: String) = parser.parse(fetchString(url) ?: "{}").asJsonObject
+@Throws(IOException::class)
+fun WebUtil.fetchJson(url: String): JsonObject = parser.parse(fetchString(url) ?: throw IOException()).asJsonObject
 
 fun WebUtil.downloadToFile(url: String, file: File): Boolean {
     return try {
