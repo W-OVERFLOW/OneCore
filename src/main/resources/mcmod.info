@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "${id}",
+    "name": "${name}",
+    "description": "W-CORE.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "W-OVERFLOW"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
