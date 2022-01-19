@@ -1,4 +1,4 @@
-package cc.woverflow.wcore
+package cc.woverflow.wcore.utils
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -10,7 +10,6 @@ import gg.essential.vigilance.Vigilant
 import java.io.File
 import java.io.IOException
 import java.net.URI
-import kotlin.jvm.Throws
 
 private val parser = JsonParser()
 
