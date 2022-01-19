@@ -1,5 +1,7 @@
-package cc.woverflow.wcore
+package cc.woverflow.wcore.utils
 
+import cc.woverflow.wcore.WCore
+import cc.woverflow.wcore.utils.Updater.addToUpdater
 import cc.woverflow.wcore.config.WCoreConfig
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.buildConfirmationModal
@@ -13,7 +15,6 @@ import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion
 import java.io.File
 import java.io.IOException
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * The updater, used for W-OVERFLOW mods.
@@ -35,9 +36,10 @@ object Updater {
                 val latestRelease = WebUtil.fetchJson("https://api.github.com/repos/${mod.repo}/releases/latest")
                 val latestTag = latestRelease["tag_name"].asString
                 if (mod.isOutdated && WCoreConfig.showUpdateNotifications) {
-                    EssentialAPI.getNotifications().push("W-CORE", "${mod.name} $latestTag is available!\nClick to open!", 5f) {
-                        mod.handleUpdate()
-                    }
+                    EssentialAPI.getNotifications()
+                        .push("W-CORE", "${mod.name} $latestTag is available!\nClick to open!", 5f) {
+                            mod.handleUpdate()
+                        }
                 }
             }
             EssentialAPI.getShutdownHookUtil().register {
@@ -100,7 +102,10 @@ object Updater {
         init {
             Multithreading.runAsync {
                 val latestRelease = WebUtil.fetchJson("https://api.github.com/repos/${repo}/releases/latest")
-                upstreamVersion = UpdateVersion(latestRelease["tag_name"].asString.substringAfter("v"), latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString)
+                upstreamVersion = UpdateVersion(
+                    latestRelease["tag_name"].asString.substringAfter("v"),
+                    latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
+                )
                 if (UpdateVersion(name) < upstreamVersion!!) {
                     isOutdated = true
                 }
@@ -108,47 +113,51 @@ object Updater {
         }
 
         fun handleUpdate() {
-            EssentialAPI.getGuiUtil().openScreen(object : WindowScreen(restoreCurrentGuiOnClose = true, version = ElementaVersion.V1) {
+            EssentialAPI.getGuiUtil()
+                .openScreen(object : WindowScreen(restoreCurrentGuiOnClose = true, version = ElementaVersion.V1) {
 
 
-                override fun initScreen(width: Int, height: Int) {
-                    super.initScreen(width, height)
-                    EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
-                        this.text = "Are you sure you want to update $name?"
-                        this.secondaryText = "(This will update from v$version to ${upstreamVersion?.version})"
-                        this.onConfirm = {
-                            restorePreviousScreen()
-                            Multithreading.runAsync {
-                                if (WebUtil.downloadToFile(
-                                        upstreamVersion!!.url!!,
-                                        File(
-                                            "mods/${name.replace(" ", "-")}-${
-                                                upstreamVersion
-                                            }.jar"
+                    override fun initScreen(width: Int, height: Int) {
+                        super.initScreen(width, height)
+                        EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
+                            this.text = "Are you sure you want to update $name?"
+                            this.secondaryText = "(This will update from v$version to ${upstreamVersion?.version})"
+                            this.onConfirm = {
+                                restorePreviousScreen()
+                                Multithreading.runAsync {
+                                    if (WebUtil.downloadToFile(
+                                            upstreamVersion!!.url!!,
+                                            File(
+                                                "mods/${name.replace(" ", "-")}-${
+                                                    upstreamVersion
+                                                }.jar"
+                                            )
+                                        ) && WebUtil.downloadToFile(
+                                            "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
+                                            File(WCore.configFile, "Deleter-1.3.jar")
                                         )
-                                    ) && WebUtil.downloadToFile(
-                                        "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
-                                        File(WCore.configFile, "Deleter-1.3.jar")
-                                    )
-                                ) {
-                                    EssentialAPI.getNotifications()
-                                        .push("W-CORE", "The ingame updater has successfully installed the newest version of $name.")
-                                    isOutdated = false
-                                    modsToRemove.add(this@Mod)
-                                } else {
-                                    EssentialAPI.getNotifications().push(
-                                        "W-CORE",
-                                        "The ingame updater has NOT installed the newest version of $name as something went wrong."
-                                    )
+                                    ) {
+                                        EssentialAPI.getNotifications()
+                                            .push(
+                                                "W-CORE",
+                                                "The ingame updater has successfully installed the newest version of $name."
+                                            )
+                                        isOutdated = false
+                                        modsToRemove.add(this@Mod)
+                                    } else {
+                                        EssentialAPI.getNotifications().push(
+                                            "W-CORE",
+                                            "The ingame updater has NOT installed the newest version of $name as something went wrong."
+                                        )
+                                    }
                                 }
                             }
-                        }
-                        this.onDeny = {
-                            restorePreviousScreen()
-                        }
-                    } childOf this.window
-                }
-            })
+                            this.onDeny = {
+                                restorePreviousScreen()
+                            }
+                        } childOf this.window
+                    }
+                })
         }
 
         companion object {
