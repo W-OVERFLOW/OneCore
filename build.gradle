@@ -1,3 +1,7 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+
 plugins {
     id "net.minecraftforge.gradle.forge" version "6f53277"
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
@@ -16,6 +20,10 @@ compileKotlin {
         jvmTarget = "1.8"
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
+}
+
+java {
+    withSourcesJar()
 }
 
 blossom {
@@ -112,13 +120,19 @@ mixin {
 
 // This adds support to ("include") libraries into our JAR
 shadowJar {
-    archiveClassifier.set('')
+    archiveClassifier.set('deobf')
     configurations = [project.configurations.include]
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
-}
-
-reobf {
-    shadowJar {}
+    doLast {
+        def file = new File("${buildDir}/libs")
+        if (!file.isFile()) {
+            for (File jar : file.listFiles()) {
+                if (jar.name.endsWith("-deobf.jar")) {
+                    Files.copy(jar.toPath(), Paths.get(new File(file, "${jar.name.substring(0, jar.name.indexOf("-deobf.jar"))}.jar").absolutePath), StandardCopyOption.REPLACE_EXISTING)
+                }
+            }
+        }
+    }
 }
 
 sourceSets {
