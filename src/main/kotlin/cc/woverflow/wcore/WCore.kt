@@ -14,12 +14,6 @@ object WCore {
 
     val configFile = File(File(mc.mcDataDir, "W-OVERFLOW"), "W-CORE")
 
-    @Suppress("unused")
-    @JvmStatic
-    fun initialize() {
-        MixinBootstrap.init()
-    }
-
     fun modInitialization() {
         command("wcore") {
             main {
