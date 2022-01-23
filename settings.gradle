@@ -15,7 +15,7 @@ pluginManagement {
             url = "https://jitpack.io/"
         }
         maven {
-            name = "Sonatype:
+            name = "Sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
     }
