@@ -60,6 +60,8 @@ repositories {
 
 dependencies {
     compileOnly "gg.essential:essential-1.8.9-forge:1750"
+    compile 'com.squareup.okhttp3:okhttp:3.5.0-SNAPSHOT'
+    compile 'com.squareup.okhttp3:okhttp-ws:3.5.0-SNAPSHOT' 
     compileOnly annotationProcessor ('org.spongepowered:mixin:0.8.5-SNAPSHOT')
     annotationProcessor("com.google.code.gson:gson:2.2.4")
     annotationProcessor("com.google.guava:guava:21.0")
