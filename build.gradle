@@ -61,8 +61,7 @@ repositories {
 
 dependencies {
     compileOnly "gg.essential:essential-1.8.9-forge:1750"
-    compile 'com.squareup.okhttp3:okhttp:4.9.3'
-    compile 'com.squareup.okio:okio:3.0.0'
+    compile "org.java-websocket:Java-WebSocket:1.5.2"
     compileOnly annotationProcessor ('org.spongepowered:mixin:0.8.5-SNAPSHOT')
     annotationProcessor("com.google.code.gson:gson:2.2.4")
     annotationProcessor("com.google.guava:guava:21.0")
