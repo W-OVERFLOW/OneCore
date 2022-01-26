@@ -1,53 +1,31 @@
 package cc.woverflow.wcore.aether
 
-import java.util.concurrent.TimeUnit;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
-import okio.ByteString;
+import cc.woverflow.wcore.WCore
+import java.net.URI
+import java.net.URISyntaxException
+import java.util.Map
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.drafts.Draft
+import org.java_websocket.handshake.ServerHandshake
 
-public final class AetherClient extends WebSocketListener {
-  private void run() {
-    OkHttpClient client = new OkHttpClient.Builder()
-        .readTimeout(0,  TimeUnit.MILLISECONDS)
-        .build();
-
-    Request request = new Request.Builder()
-        .url("wss://ws-test.woverflow.cc")
-        .build();
-    client.newWebSocket(request, this);
-
-    // Trigger shutdown of the dispatcher's executor so this process can exit cleanly.
-    client.dispatcher().executorService().shutdown();
+class AetherClient(uri: String) : WebSocketClient(URI.create(uri)) {
+  fun awaitConnection(): Boolean {
+    // await connection
   }
   
-  @Override public void onOpen(WebSocket webSocket, Response response) {
-    webSocket.send("Hello...");
-    webSocket.send("...World!");
-    webSocket.send(ByteString.decodeHex("deadbeef"));
-    webSocket.close(1000, "Goodbye, World!");
+  override fun onOpen(handshakedata: ServerHandshake) {
+    // connection established
   }
+  
+  override fun onMessage(message: String) {
+    println(message)
+  }
+  
+  override fun onClose(code: Int, reason: String?, remote: Boolean) {
+        // connection closed
+    }
 
-  @Override public void onMessage(WebSocket webSocket, String text) {
-    System.out.println("MESSAGE: " + text);
-  }
-
-  @Override public void onMessage(WebSocket webSocket, ByteString bytes) {
-    System.out.println("MESSAGE: " + bytes.hex());
-  }
-
-  @Override public void onClosing(WebSocket webSocket, int code, String reason) {
-    webSocket.close(1000, null);
-    System.out.println("CLOSE: " + code + " " + reason);
-  }
-
-  @Override public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-    t.printStackTrace();
-  }
-
-  public static void main(String... args) {
-    new WebSocketEcho().run();
-  }
+    override fun onError(ex: Exception) {
+        // error 
+    }
 }
