@@ -23,9 +23,9 @@ class AetherClient(uri: String) : WebSocketClient(URI.create(uri)) {
   
   override fun onClose(code: Int, reason: String?, remote: Boolean) {
         // connection closed
-    }
+  }
 
     override fun onError(ex: Exception) {
         // error 
-    }
+  }
 }
