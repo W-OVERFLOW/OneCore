@@ -64,10 +64,6 @@ dependencies {
     /* External libraries. */
     compileOnly("gg.essential:essential-1.8.9-forge:1750")
 
-    /* Networking. */
-    compile("org.java-websocket:Java-WebSocket:1.5.2")
-    compile("xyz.deftu.quicksocket:QuickSocket:1.0.0")
-
     /* Core. */
     compileOnly(annotationProcessor('org.spongepowered:mixin:0.8.5-SNAPSHOT'))
 
