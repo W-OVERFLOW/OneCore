@@ -63,6 +63,7 @@ repositories {
 dependencies {
     /* External libraries. */
     compileOnly("gg.essential:essential-1.8.9-forge:1750")
+    implementation("com.adamratzman:spotify-api-kotlin-core:3.8.5")
 
     /* Core. */
     compileOnly(annotationProcessor('org.spongepowered:mixin:0.8.5-SNAPSHOT'))
