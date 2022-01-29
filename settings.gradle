@@ -18,6 +18,10 @@ pluginManagement {
             name = "Sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
+        maven {
+            name = "w-overflow"
+            url = "https://repo.woverflow.cc/"
+        }
     }
     resolutionStrategy {
         eachPlugin {
