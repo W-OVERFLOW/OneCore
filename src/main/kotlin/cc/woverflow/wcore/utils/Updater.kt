@@ -1,8 +1,8 @@
 package cc.woverflow.wcore.utils
 
 import cc.woverflow.wcore.WCore
-import cc.woverflow.wcore.utils.Updater.addToUpdater
 import cc.woverflow.wcore.config.WCoreConfig
+import cc.woverflow.wcore.utils.Updater.addToUpdater
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.buildConfirmationModal
 import gg.essential.api.utils.Multithreading
@@ -13,7 +13,6 @@ import gg.essential.elementa.dsl.childOf
 import gg.essential.universal.UDesktop
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion
 import java.io.File
-import java.io.IOException
 import java.util.*
 
 /**
@@ -26,8 +25,8 @@ object Updater {
 
     private val modsToRemove: ArrayList<Mod> = arrayListOf()
 
-    fun addToUpdater(modFile: File, name: String, version: String, repo: String) {
-        mods.add(Mod(modFile, name, version, repo))
+    fun addToUpdater(modFile: File, name: String, id: String, version: String, repo: String) {
+        mods.add(Mod(modFile, name, id, version, repo))
     }
 
     fun update() {
@@ -44,9 +43,8 @@ object Updater {
             }
             EssentialAPI.getShutdownHookUtil().register {
                 for (mod in modsToRemove) {
-                    println("Deleting old ${mod.name} jar file...")
+                    println("Deleting old ${mod.id} jar file...")
                     try {
-                        val runtime = getJavaRuntime()
                         if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
                             val sipStatus = Runtime.getRuntime().exec("csrutil status")
                             sipStatus.waitFor()
@@ -56,16 +54,18 @@ object Updater {
                                 UDesktop.open(mod.modFile.parentFile)
                             }
                         }
-                        println("Using runtime $runtime")
                         val file = File(WCore.configFile, "Deleter-1.3.jar")
-                        println("\"$runtime\" -jar \"${file.absolutePath}\" \"${mod.modFile.absolutePath}\"")
-                        if (System.getProperty("os.name").lowercase(Locale.ENGLISH).containsAny("linux", "unix")) {
+                        println("java -jar ${file.name} ${mod.modFile.absolutePath} || ${file.parentFile}")
+                        if (UDesktop.isLinux) {
                             println("On Linux, giving Deleter jar execute permissions...")
                             Runtime.getRuntime()
                                 .exec("chmod +x \"${file.absolutePath}\"")
+                        } else if (UDesktop.isMac) {
+                            println("On macOS, giving Deleter jar execute permissions...")
+                            Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
                         }
                         Runtime.getRuntime()
-                            .exec("\"$runtime\" -jar \"${file.absolutePath}\" \"${mod.modFile.absolutePath}\"")
+                            .exec("java -jar ${file.name} ${mod.modFile.absolutePath}", null, file.parentFile)
                     } catch (e: Throwable) {
                         e.printStackTrace()
                     }
@@ -75,25 +75,9 @@ object Updater {
     }
 
     /**
-     * Gets the current Java runtime being used.
-     * @link https://stackoverflow.com/a/47925649
-     */
-    @Throws(IOException::class)
-    fun getJavaRuntime(): String {
-        val os = System.getProperty("os.name")
-        val java = "${System.getProperty("java.home")}${File.separator}bin${File.separator}${
-            if (os != null && os.lowercase().startsWith("windows")) "java.exe" else "java"
-        }"
-        if (!File(java).isFile) {
-            throw IOException("Unable to find suitable java runtime at $java")
-        }
-        return java
-    }
-
-    /**
      * Class which represents a mod. Used for version checking.
      */
-    data class Mod(val modFile: File, val name: String, val version: String, val repo: String) {
+    internal data class Mod(val modFile: File, val name: String, val id: String, val version: String, val repo: String) {
         var isOutdated = false
             private set
 
@@ -106,7 +90,7 @@ object Updater {
                     latestRelease["tag_name"].asString.substringAfter("v"),
                     latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
                 )
-                if (UpdateVersion(name) < upstreamVersion!!) {
+                if (UpdateVersion(version) < upstreamVersion!!) {
                     isOutdated = true
                 }
             }
@@ -127,9 +111,9 @@ object Updater {
                                 Multithreading.runAsync {
                                     if (WebUtil.downloadToFile(
                                             upstreamVersion!!.url!!,
-                                            File(
-                                                "mods/${name.replace(" ", "-")}-${
-                                                    upstreamVersion
+                                            File(modFile.parentFile,
+                                                "${name.replace(" ", "-")}-${
+                                                    upstreamVersion?.version
                                                 }.jar"
                                             )
                                         ) && WebUtil.downloadToFile(
@@ -170,21 +154,23 @@ object Updater {
          */
         inner class UpdateVersion(val version: String, val url: String? = null) : Comparable<UpdateVersion> {
 
-            private val matched by lazy {
-                regex.find(version)
+            init {
+                println(version)
             }
+
+            private val matched = regex.find(version)
 
             val isSafe = matched != null
 
             private val versionArtifact = DefaultArtifactVersion(matched!!.groups["version"]!!.value)
-            val specialVersionType by lazy {
-                val typeString = matched!!.groups["type"]?.value ?: return@lazy UpdateType.RELEASE
+            val specialVersionType = run {
+                val typeString = matched!!.groups["type"]?.value ?: return@run UpdateType.RELEASE
 
-                return@lazy UpdateType.values().find { typeString == it.prefix } ?: UpdateType.UNKNOWN
+                return@run UpdateType.values().find { typeString == it.prefix } ?: UpdateType.UNKNOWN
             }
-            val specialVersion by lazy {
-                if (specialVersionType == UpdateType.RELEASE) return@lazy null
-                return@lazy matched!!.groups["typever"]?.value?.toDoubleOrNull()
+            val specialVersion = run {
+                if (specialVersionType == UpdateType.RELEASE) return@run null
+                return@run matched!!.groups["typever"]?.value?.toDoubleOrNull()
             }
 
             override fun compareTo(other: UpdateVersion): Int {

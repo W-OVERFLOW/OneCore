@@ -5,24 +5,46 @@ import cc.woverflow.wcore.utils.Updater
 import cc.woverflow.wcore.utils.command
 import cc.woverflow.wcore.utils.openGUI
 import net.minecraft.client.Minecraft
-import org.spongepowered.asm.launch.MixinBootstrap
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.event.FMLInitializationEvent
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import java.io.File
 
+@Mod(name = WCore.NAME, modid = WCore.ID, version = WCore.VERSION, modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter")
 object WCore {
     val mc: Minecraft
     get() = Minecraft.getMinecraft()
 
+    private var init = false
+    private var postInit = false
+
+    const val NAME = "@NAME@"
+    const val ID = "@ID@"
+    const val VERSION = "@VER@"
+
     val configFile = File(File(mc.mcDataDir, "W-OVERFLOW"), "W-CORE")
 
-    fun modInitialization() {
-        command("wcore") {
-            main {
-                WCoreConfig.openGUI()
+    @Mod.EventHandler
+    fun onInit(event: FMLInitializationEvent?) {
+        if (!init) {
+            init = true
+            if (!configFile.exists()) {
+                configFile.mkdirs()
+            }
+            WCoreConfig.preload()
+            command("wcore") {
+                main {
+                    WCoreConfig.openGUI()
+                }
             }
         }
     }
 
-    fun modPostInitialization() {
-        Updater.update()
+    @Mod.EventHandler
+    fun onPostInit(event: FMLPostInitializationEvent?) {
+        if (!postInit) {
+            postInit = true
+            Updater.update()
+        }
     }
 }
