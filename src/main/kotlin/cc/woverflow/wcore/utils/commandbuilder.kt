@@ -7,6 +7,7 @@ import net.minecraft.util.BlockPos
 import net.minecraftforge.client.ClientCommandHandler
 import java.util.*
 
+@JvmOverloads
 fun command(
     name: String,
     aliases: ArrayList<String> = arrayListOf(),
@@ -38,9 +39,9 @@ class CommandBuilder @JvmOverloads internal constructor(
         }
         for (subcommand in subCommands) {
             builder.append(
-                "\n/$name ${subcommand.key} ${
+                "\n/$name ${subcommand.key}${
                     if (subcommand.value.options.isNotEmpty()) subcommand.value.options.joinToString(
-                        separator = "|", prefix = "[", postfix = "]"
+                        separator = "|", prefix = " [", postfix = "]"
                     ) else ""
                 }${if (subcommand.value.description.isBlank()) "" else " - ${subcommand.value.description}"}"
             )
@@ -60,7 +61,12 @@ class CommandBuilder @JvmOverloads internal constructor(
     }
 
     @JvmOverloads
-    fun subCommand(name: String, description: String = "", options: List<String> = emptyList(), action: (List<String>) -> Unit) {
+    fun subCommand(
+        name: String,
+        description: String = "",
+        options: List<String> = emptyList(),
+        action: (List<String>) -> Unit
+    ) {
         subCommands[name] = SubCommand(description, options, action)
     }
 

@@ -17,7 +17,7 @@ object WCoreConfig : Vigilant(File(WCore.configFile, "config.toml")) {
         description = "Show update notifications for W-OVERFLOW mods.",
         category = "Updater"
     )
-    val showUpdateNotifications = true
+    var showUpdateNotifications = true
 
     init {
         initialize()
