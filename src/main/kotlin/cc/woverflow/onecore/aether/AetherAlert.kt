@@ -7,8 +7,8 @@ import cc.woverflow.onecore.utils.sendBrandedNotification
     AetherAlert: Receives an alert from an AetherClient.
     Used for manual updates, important announcements, etc.
  */
-class AetherAlert : AetherClient() {
-    init {
+object AetherAlert : AetherClient() {
+    fun init() {
         connect()
     }
 
