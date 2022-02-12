@@ -25,7 +25,7 @@ object OneCore {
     const val ID = "@ID@"
     const val VERSION = "@VER@"
 
-    val configFile = File(File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), "W-CORE")
+    val configFile = File(File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), "OneCore")
 
     @Mod.EventHandler
     fun onInit(event: FMLInitializationEvent?) {
@@ -35,7 +35,7 @@ object OneCore {
                 configFile.mkdirs()
             }
             OneCoreConfig.preload()
-            command("wcore") {
+            command("onecore") {
                 main {
                     OneCoreConfig.openScreen()
                 }
