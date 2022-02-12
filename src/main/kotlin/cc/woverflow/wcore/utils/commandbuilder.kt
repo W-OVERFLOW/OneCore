@@ -62,10 +62,7 @@ class CommandBuilder @JvmOverloads internal constructor(
 
     @JvmOverloads
     fun subCommand(
-        name: String,
-        description: String = "",
-        options: List<String> = emptyList(),
-        action: (List<String>) -> Unit
+        name: String, description: String = "", options: List<String> = emptyList(), action: (List<String>) -> Unit
     ) {
         subCommands[name] = SubCommand(description, options, action)
     }

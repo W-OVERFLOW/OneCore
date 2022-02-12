@@ -32,36 +32,33 @@ object Updater {
     fun update() {
         Multithreading.runAsync {
             for (mod in mods) {
-                val latestRelease = WebUtil.fetchJson("https://api.github.com/repos/${mod.repo}/releases/latest")
+                val latestRelease = WebUtil.fetchJsonElement("https://api.github.com/repos/${mod.repo}/releases/latest").asJsonObject
                 val latestTag = latestRelease["tag_name"].asString
                 if (mod.isOutdated && WCoreConfig.showUpdateNotifications) {
-                    EssentialAPI.getNotifications()
-                        .push("W-CORE", "${mod.name} $latestTag is available!\nClick to open!", 5f) {
+                    sendBrandedNotification(
+                        "W-CORE",
+                        "${mod.name} $latestTag is available!\nClick to open!",
+                        5f,
+                        action = {
                             mod.handleUpdate()
-                        }
+                        })
                 }
             }
             EssentialAPI.getShutdownHookUtil().register {
                 for (mod in modsToRemove) {
-                    println("Deleting old ${mod.id} jar file...")
                     try {
                         if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
                             val sipStatus = Runtime.getRuntime().exec("csrutil status")
                             sipStatus.waitFor()
                             if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
                                     .contains("System Integrity Protection status: disabled.")) {
-                                println("SIP is NOT disabled, opening Finder.")
                                 UDesktop.open(mod.modFile.parentFile)
                             }
                         }
                         val file = File(WCore.configFile, "Deleter-1.3.jar")
-                        println("java -jar ${file.name} ${mod.modFile.absolutePath} || ${file.parentFile}")
                         if (UDesktop.isLinux) {
-                            println("On Linux, giving Deleter jar execute permissions...")
-                            Runtime.getRuntime()
-                                .exec("chmod +x \"${file.absolutePath}\"")
+                            Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
                         } else if (UDesktop.isMac) {
-                            println("On macOS, giving Deleter jar execute permissions...")
                             Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
                         }
                         Runtime.getRuntime()
@@ -77,7 +74,9 @@ object Updater {
     /**
      * Class which represents a mod. Used for version checking.
      */
-    internal data class Mod(val modFile: File, val name: String, val id: String, val version: String, val repo: String) {
+    internal data class Mod(
+        val modFile: File, val name: String, val id: String, val version: String, val repo: String
+    ) {
         var isOutdated = false
             private set
 
@@ -85,7 +84,7 @@ object Updater {
 
         init {
             Multithreading.runAsync {
-                val latestRelease = WebUtil.fetchJson("https://api.github.com/repos/${repo}/releases/latest")
+                val latestRelease = WebUtil.fetchJsonElement("https://api.github.com/repos/${repo}/releases/latest").asJsonObject
                 upstreamVersion = UpdateVersion(
                     latestRelease["tag_name"].asString.substringAfter("v"),
                     latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
@@ -109,27 +108,25 @@ object Updater {
                             this.onConfirm = {
                                 restorePreviousScreen()
                                 Multithreading.runAsync {
-                                    if (WebUtil.downloadToFile(
-                                            upstreamVersion!!.url!!,
-                                            File(modFile.parentFile,
-                                                "${name.replace(" ", "-")}-${
+                                    if (WebUtil.downloadToFileSafe(
+                                            upstreamVersion!!.url!!, File(
+                                                modFile.parentFile, "${name.replace(" ", "-")}-${
                                                     upstreamVersion?.version
                                                 }.jar"
                                             )
-                                        ) && WebUtil.downloadToFile(
+                                        ) && WebUtil.downloadToFileSafe(
                                             "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
                                             File(WCore.configFile, "Deleter-1.3.jar")
                                         )
                                     ) {
-                                        EssentialAPI.getNotifications()
-                                            .push(
-                                                "W-CORE",
-                                                "The ingame updater has successfully installed the newest version of $name."
-                                            )
+                                        sendBrandedNotification(
+                                            "W-CORE",
+                                            "The ingame updater has successfully installed the newest version of $name."
+                                        )
                                         isOutdated = false
                                         modsToRemove.add(this@Mod)
                                     } else {
-                                        EssentialAPI.getNotifications().push(
+                                        sendBrandedNotification(
                                             "W-CORE",
                                             "The ingame updater has NOT installed the newest version of $name as something went wrong."
                                         )
@@ -153,10 +150,6 @@ object Updater {
          * https://github.com/My-Name-Is-Jeff/SimpleTimeChanger/blob/master/LICENSE
          */
         inner class UpdateVersion(val version: String, val url: String? = null) : Comparable<UpdateVersion> {
-
-            init {
-                println(version)
-            }
 
             private val matched = regex.find(version)
 
@@ -184,10 +177,7 @@ object Updater {
         }
 
         enum class UpdateType(val prefix: String) {
-            UNKNOWN("unknown"),
-            RELEASE(""),
-            RELEASECANDIDATE("rc"),
-            BETA("beta"),
+            RELEASE(""), PRERELEASE("pre"), BETA("beta"), ALPHA("alpha"), UNKNOWN("unknown")
         }
     }
 }
