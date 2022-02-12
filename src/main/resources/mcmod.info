@@ -2,7 +2,7 @@
   {
     "modid": "${id}",
     "name": "${name}",
-    "description": "W-CORE.",
+    "description": "OneCore",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "",
@@ -10,7 +10,7 @@
     "authorList": [
       "W-OVERFLOW"
     ],
-    "credits": "",
+    "credits": "AetherLibs: Aether4j",
     "logoFile": "",
     "screenshots": [],
     "dependencies": []

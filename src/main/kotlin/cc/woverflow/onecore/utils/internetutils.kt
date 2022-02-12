@@ -1,6 +1,6 @@
 @file:JvmName("InternetUtils")
 
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
 import com.google.gson.JsonElement
 import gg.essential.api.utils.WebUtil

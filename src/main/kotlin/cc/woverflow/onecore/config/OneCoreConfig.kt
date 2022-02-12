@@ -1,6 +1,6 @@
-package cc.woverflow.wcore.config
+package cc.woverflow.onecore.config
 
-import cc.woverflow.wcore.WCore
+import cc.woverflow.onecore.OneCore
 import gg.essential.vigilance.Vigilant
 import gg.essential.vigilance.data.Property
 import gg.essential.vigilance.data.PropertyType
@@ -9,7 +9,7 @@ import java.io.File
 /**
  * The W-CORE config.
  */
-object WCoreConfig : Vigilant(File(WCore.configFile, "config.toml")) {
+object OneCoreConfig : Vigilant(File(OneCore.configFile, "config.toml")) {
 
     @Property(
         type = PropertyType.SWITCH,

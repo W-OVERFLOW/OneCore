@@ -1,8 +1,8 @@
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
-import cc.woverflow.wcore.WCore
-import cc.woverflow.wcore.config.WCoreConfig
-import cc.woverflow.wcore.utils.Updater.addToUpdater
+import cc.woverflow.onecore.OneCore
+import cc.woverflow.onecore.config.OneCoreConfig
+import cc.woverflow.onecore.utils.Updater.addToUpdater
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.buildConfirmationModal
 import gg.essential.api.utils.Multithreading
@@ -34,7 +34,7 @@ object Updater {
             for (mod in mods) {
                 val latestRelease = WebUtil.fetchJsonElement("https://api.github.com/repos/${mod.repo}/releases/latest").asJsonObject
                 val latestTag = latestRelease["tag_name"].asString
-                if (mod.isOutdated && WCoreConfig.showUpdateNotifications) {
+                if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
                     sendBrandedNotification(
                         "W-CORE",
                         "${mod.name} $latestTag is available!\nClick to open!",
@@ -55,7 +55,7 @@ object Updater {
                                 UDesktop.open(mod.modFile.parentFile)
                             }
                         }
-                        val file = File(WCore.configFile, "Deleter-1.3.jar")
+                        val file = File(OneCore.configFile, "Deleter-1.3.jar")
                         if (UDesktop.isLinux) {
                             Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
                         } else if (UDesktop.isMac) {
@@ -116,7 +116,7 @@ object Updater {
                                             )
                                         ) && WebUtil.downloadToFileSafe(
                                             "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
-                                            File(WCore.configFile, "Deleter-1.3.jar")
+                                            File(OneCore.configFile, "Deleter-1.3.jar")
                                         )
                                     ) {
                                         sendBrandedNotification(

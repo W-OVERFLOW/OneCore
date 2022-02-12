@@ -1,4 +1,4 @@
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
 import com.google.gson.JsonObject
 import gg.essential.api.utils.WebUtil

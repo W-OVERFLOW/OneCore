@@ -1,6 +1,6 @@
 @file:JvmName("GuiUtils")
 
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.Notifications
@@ -43,7 +43,7 @@ fun sendBrandedNotification(
     title: String, message: String, duration: Float = 4f, action: () -> Unit = {}, close: () -> Unit = {}
 ) = EssentialAPI.getNotifications().push(title, message, duration, action, close) {
     this.elementaVersion = ElementaVersion.V1
-    this.withCustomComponent(Slot.PREVIEW, UIImage.ofResource("/assets/wcore/woverflow.png") constrain {
+    this.withCustomComponent(Slot.PREVIEW, UIImage.ofResource("/assets/onecore/woverflow.png") constrain {
         width = 30.pixels()
         height = 30.pixels()
     })
