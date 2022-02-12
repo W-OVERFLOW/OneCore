@@ -4,6 +4,7 @@ import cc.woverflow.onecore.config.OneCoreConfig
 import cc.woverflow.onecore.utils.Updater
 import cc.woverflow.onecore.utils.command
 import cc.woverflow.onecore.utils.openScreen
+import cc.woverflow.onecore.aether.AetherAlert
 import net.minecraft.client.Minecraft
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -48,6 +49,7 @@ object OneCore {
         if (!postInit) {
             postInit = true
             Updater.update()
+            AetherAlert.init()
         }
     }
 }
