@@ -27,7 +27,7 @@ java {
 }
 
 blossom {
-    String className = "src/main/kotlin/cc/woverflow/wcore/WCore.kt"
+    String className = "src/main/kotlin/cc/woverflow/onecore/OneCore.kt"
     replaceToken("@VER@", project.version, className)
     replaceToken("@NAME@", mod_name, className)
     replaceToken("@ID@", mod_id, className)

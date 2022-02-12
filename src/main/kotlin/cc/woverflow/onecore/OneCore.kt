@@ -1,9 +1,9 @@
-package cc.woverflow.wcore
+package cc.woverflow.onecore
 
-import cc.woverflow.wcore.config.WCoreConfig
-import cc.woverflow.wcore.utils.Updater
-import cc.woverflow.wcore.utils.command
-import cc.woverflow.wcore.utils.openScreen
+import cc.woverflow.onecore.config.OneCoreConfig
+import cc.woverflow.onecore.utils.Updater
+import cc.woverflow.onecore.utils.command
+import cc.woverflow.onecore.utils.openScreen
 import net.minecraft.client.Minecraft
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -11,12 +11,12 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import java.io.File
 
 @Mod(
-    name = WCore.NAME,
-    modid = WCore.ID,
-    version = WCore.VERSION,
+    name = OneCore.NAME,
+    modid = OneCore.ID,
+    version = OneCore.VERSION,
     modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter"
 )
-object WCore {
+object OneCore {
 
     private var init = false
     private var postInit = false
@@ -34,10 +34,10 @@ object WCore {
             if (!configFile.exists()) {
                 configFile.mkdirs()
             }
-            WCoreConfig.preload()
+            OneCoreConfig.preload()
             command("wcore") {
                 main {
-                    WCoreConfig.openScreen()
+                    OneCoreConfig.openScreen()
                 }
             }
         }

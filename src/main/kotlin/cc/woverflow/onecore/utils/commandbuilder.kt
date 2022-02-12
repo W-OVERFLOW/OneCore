@@ -1,4 +1,4 @@
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
 import gg.essential.universal.UChat
 import net.minecraft.command.CommandBase

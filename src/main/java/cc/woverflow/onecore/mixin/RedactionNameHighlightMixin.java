@@ -1,6 +1,6 @@
-package cc.woverflow.wcore.mixin;
+package cc.woverflow.onecore.mixin;
 
-import cc.woverflow.wcore.utils.RenderUtils;
+import cc.woverflow.onecore.utils.RenderUtils;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;

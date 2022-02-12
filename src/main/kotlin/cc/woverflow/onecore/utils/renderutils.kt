@@ -1,6 +1,6 @@
 @file:JvmName("RenderUtils")
 
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
 import net.minecraft.client.gui.FontRenderer
 

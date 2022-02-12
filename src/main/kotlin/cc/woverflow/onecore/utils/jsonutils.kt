@@ -1,6 +1,6 @@
 @file:JvmName("JsonUtils")
 
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser

@@ -1,4 +1,4 @@
-package cc.woverflow.wcore.utils
+package cc.woverflow.onecore.utils
 
 interface Builder {
     fun build()

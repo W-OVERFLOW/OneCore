@@ -1,6 +1,6 @@
-package cc.woverflow.wcore.mixin;
+package cc.woverflow.onecore.mixin;
 
-import cc.woverflow.wcore.WCore;
+import cc.woverflow.onecore.OneCore;
 import net.minecraftforge.fml.common.Loader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,11 +12,11 @@ public class LoaderMixin {
 
     @Inject(method = "initializeMods", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/LoadController;distributeStateMessage(Lnet/minecraftforge/fml/common/LoaderState;[Ljava/lang/Object;)V", ordinal = 0, shift = At.Shift.AFTER))
     private void onInit(CallbackInfo ci) {
-        WCore.INSTANCE.onInit(null);
+        OneCore.INSTANCE.onInit(null);
     }
 
     @Inject(method = "initializeMods", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/LoadController;distributeStateMessage(Lnet/minecraftforge/fml/common/LoaderState;[Ljava/lang/Object;)V", ordinal = 1, shift = At.Shift.AFTER))
     private void onPostInit(CallbackInfo ci) {
-        WCore.INSTANCE.onPostInit(null);
+        OneCore.INSTANCE.onPostInit(null);
     }
 }
