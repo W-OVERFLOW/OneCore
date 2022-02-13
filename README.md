@@ -1,7 +1,7 @@
 <div align="center">
 
-# `W-CORE`
-All in one Minecraft modding core modules.\
+# `OneCore`
+All in one Minecraft core modules.\
 [Report a Bug][bugreps]
 ·
 [Request a Feature][featreqs]
