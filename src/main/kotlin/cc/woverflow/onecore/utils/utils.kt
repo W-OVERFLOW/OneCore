@@ -1,27 +1,34 @@
+@file:JvmName("Utils")
+
 package cc.woverflow.onecore.utils
 
-import com.google.gson.JsonObject
-import gg.essential.api.utils.WebUtil
-import gg.essential.universal.UDesktop
-import gg.essential.vigilance.Vigilant
-import java.io.File
-import java.io.IOException
+import gg.essential.api.EssentialAPI
+import gg.essential.api.gui.Notifications
+import gg.essential.api.gui.Slot
+import gg.essential.elementa.ElementaVersion
+import gg.essential.elementa.components.UIImage
+import gg.essential.elementa.dsl.constrain
+import gg.essential.elementa.dsl.pixels
 
-@Deprecated("", ReplaceWith("sequences.any { it != null && this.contains(it, true) }"))
-fun String.containsAny(vararg sequences: CharSequence?) = sequences.any { it != null && this.contains(it, true) }
-
-@Deprecated("Replaced by JsonUtils", ReplaceWith("JsonUtils.asJsonElement.asJsonObject"))
-fun String.asJsonObject() = asJsonElement().asJsonObject
-
-@Deprecated("Replaced by InternetUtils", ReplaceWith("InternetUtils.fetchJsonElement.asJsonObject"))
-@Throws(IOException::class)
-fun WebUtil.fetchJson(url: String): JsonObject = fetchJsonElement(url).asJsonObject
-
-@Deprecated("Replaced by InternetUtils", ReplaceWith("InternetUtils.downloadToFileSafe"))
-fun WebUtil.downloadToFile(url: String, file: File): Boolean = downloadToFileSafe(url, file)
-
-@Deprecated("Replaced by InternetUtils", ReplaceWith("InternetUtils.browseURL"))
-fun UDesktop.browse(url: String) = browseURL(url)
-
-@Deprecated("Replaced by GuiUtils", ReplaceWith("GuiUtils.openScreen"))
-fun Vigilant.openGUI() = openScreen()
+/**
+ * Push a new notification with the given title, message, customizable duration, action, and close action
+ * with the W-OVERFLOW logo alongside it.
+ *
+ * @param title notification header
+ * @param message notification body
+ * @param duration how long in seconds the notification will stay on screen
+ * @param action ran when the player clicks the notification
+ * @param close ran when the notification has expired
+ *
+ * @see Notifications
+ */
+@JvmOverloads
+fun sendBrandedNotification(
+    title: String, message: String, duration: Float = 4f, action: () -> Unit = {}, close: () -> Unit = {}
+) = EssentialAPI.getNotifications().push(title, message, duration, action, close) {
+    this.elementaVersion = ElementaVersion.V1
+    this.withCustomComponent(Slot.PREVIEW, UIImage.ofResource("/assets/onecore/woverflow.png") constrain {
+        width = 30.pixels()
+        height = 30.pixels()
+    })
+}

@@ -21,14 +21,14 @@ import java.net.URI
 fun WebUtil.fetchJsonElement(url: String): JsonElement = (fetchString(url) ?: throw IOException()).asJsonElement()
 
 /**
- * Download a file from the internet, using Essential's own user agent.
+ * Download a file from the internet.
  *
  * @param url file location
  * @param file location to save the file
  * @return Whether downloading succeeded.
  */
 @JvmOverloads
-fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "Mozilla/4.76 (Essential)"): Boolean {
+fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "Mozilla/4.76 (OneCore)"): Boolean {
     return try {
         downloadToFile(url, file, userAgent)
         true

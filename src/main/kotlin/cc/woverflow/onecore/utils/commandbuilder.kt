@@ -1,3 +1,5 @@
+@file:JvmName("CommandBuilderDSL")
+
 package cc.woverflow.onecore.utils
 
 import gg.essential.universal.UChat

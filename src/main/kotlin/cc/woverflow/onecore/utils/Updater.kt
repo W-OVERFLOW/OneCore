@@ -36,7 +36,7 @@ object Updater {
                 val latestTag = latestRelease["tag_name"].asString
                 if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
                     sendBrandedNotification(
-                        "W-CORE",
+                        "OneCore",
                         "${mod.name} $latestTag is available!\nClick to open!",
                         5f,
                         action = {
@@ -120,14 +120,14 @@ object Updater {
                                         )
                                     ) {
                                         sendBrandedNotification(
-                                            "W-CORE",
+                                            "OneCore",
                                             "The ingame updater has successfully installed the newest version of $name."
                                         )
                                         isOutdated = false
                                         modsToRemove.add(this@Mod)
                                     } else {
                                         sendBrandedNotification(
-                                            "W-CORE",
+                                            "OneCore",
                                             "The ingame updater has NOT installed the newest version of $name as something went wrong."
                                         )
                                     }
