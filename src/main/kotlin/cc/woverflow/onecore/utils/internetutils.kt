@@ -28,7 +28,7 @@ fun WebUtil.fetchJsonElement(url: String): JsonElement = (fetchString(url) ?: th
  * @return Whether downloading succeeded.
  */
 @JvmOverloads
-fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "Mozilla/4.76 (OneCore)"): Boolean {
+fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "OneCore/1.2.1, Minecraft/1.8.9 (+https://woverflow.cc)"): Boolean {
     return try {
         downloadToFile(url, file, userAgent)
         true
