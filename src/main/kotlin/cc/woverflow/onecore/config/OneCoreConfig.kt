@@ -7,7 +7,7 @@ import gg.essential.vigilance.data.PropertyType
 import java.io.File
 
 /**
- * The W-CORE config.
+ * The OneCore config.
  */
 object OneCoreConfig : Vigilant(File(OneCore.configFile, "config.toml")) {
 

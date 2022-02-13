@@ -13,7 +13,7 @@ plugins {
 
 version = mod_version
 group = "cc.woverflow"
-archivesBaseName = mod_name
+archivesBaseName = mod_name.toLowerCase(Locale.ENGLISH)
 
 compileKotlin {
     kotlinOptions {
@@ -71,9 +71,13 @@ dependencies {
     }
 
     /* Aether4j */
-    implementation("xyz.deftu.quicksocket:QuickSocket:1.1.0")
-    implementation ('com.github.PhilJay:JWT:1.1.5')
-    compile ("org.java-websocket:Java-WebSocket:1.5.2")
+    /*/
+    including these libraries takes up too much space for the repo to handle rn lol
+    include ("xyz.deftu.quicksocket:QuickSocket:1.1.0")
+    include ('com.github.PhilJay:JWT:1.1.5')
+    include ("org.java-websocket:Java-WebSocket:1.5.2")
+
+     */
 }
 
 /**
