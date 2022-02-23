@@ -2,6 +2,7 @@
 
 package cc.woverflow.onecore.utils
 
+import cc.woverflow.onecore.OneCore
 import com.google.gson.JsonElement
 import gg.essential.api.utils.WebUtil
 import gg.essential.universal.UDesktop
@@ -28,7 +29,7 @@ fun WebUtil.fetchJsonElement(url: String): JsonElement = (fetchString(url) ?: th
  * @return Whether downloading succeeded.
  */
 @JvmOverloads
-fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "OneCore/1.2.1, Minecraft/1.8.9 (+https://woverflow.cc)"): Boolean {
+fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "${OneCore.NAME}/${OneCore.VERSION}, Minecraft/1.8.9 (+https://woverflow.cc)"): Boolean {
     return try {
         downloadToFile(url, file, userAgent)
         true
@@ -37,6 +38,8 @@ fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "One
         false
     }
 }
+
+fun WebUtil.downloadToFile(url: String, file: File) = downloadToFile(url, file, "${OneCore.NAME}/${OneCore.VERSION}, Minecraft/1.8.9 (+https://woverflow.cc)")
 
 /**
  * Open a website URL in the user's web browser.

@@ -1,6 +1,7 @@
 package cc.woverflow.onecore
 
 import cc.woverflow.onecore.config.OneCoreConfig
+import cc.woverflow.onecore.utils.KeybindHandler
 import cc.woverflow.onecore.utils.Updater
 import cc.woverflow.onecore.utils.command
 import cc.woverflow.onecore.utils.openScreen
@@ -34,6 +35,7 @@ object OneCore {
             if (!configFile.exists()) {
                 configFile.mkdirs()
             }
+            KeybindHandler.initialize()
             OneCoreConfig.preload()
             command("onecore") {
                 main {
