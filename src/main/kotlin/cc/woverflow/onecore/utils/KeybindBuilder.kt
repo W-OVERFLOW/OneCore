@@ -1,5 +1,3 @@
-@file:JvmName("KeybindBuilderDSL")
-
 package cc.woverflow.onecore.utils
 
 import net.minecraft.client.settings.KeyBinding
@@ -9,10 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.InputEvent
 import org.lwjgl.input.Keyboard
 
-private val keybinds = arrayListOf<KeybindBuilder>()
-
-fun keybind(name: String, category: String, defaultKey: Int, builder: KeybindBuilder.() -> Unit) =
-    KeybindBuilder(name, category, defaultKey).apply(builder).also { it.build() }
+internal val keybinds = arrayListOf<KeybindBuilder>()
 
 class KeybindBuilder(name: String, category: String, defaultKey: Int) : Builder {
 

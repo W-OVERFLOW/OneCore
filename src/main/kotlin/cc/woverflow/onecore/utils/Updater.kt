@@ -44,7 +44,7 @@ object Updater {
                         })
                 }
             }
-            EssentialAPI.getShutdownHookUtil().register {
+            Runtime.getRuntime().addShutdownHook(Thread {
                 for (mod in modsToRemove) {
                     try {
                         if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
@@ -67,7 +67,7 @@ object Updater {
                         e.printStackTrace()
                     }
                 }
-            }
+            })
         }
     }
 
