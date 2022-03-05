@@ -1,5 +1,3 @@
-@file:JvmName("CommandBuilderDSL")
-
 package cc.woverflow.onecore.utils
 
 import gg.essential.universal.UChat
@@ -8,16 +6,6 @@ import net.minecraft.command.ICommandSender
 import net.minecraft.util.BlockPos
 import net.minecraftforge.client.ClientCommandHandler
 import java.util.*
-
-@JvmOverloads
-fun command(
-    name: String,
-    aliases: ArrayList<String> = arrayListOf(),
-    generateHelpCommand: Boolean = true,
-    builder: CommandBuilder.() -> Unit
-): CommandBuilder {
-    return CommandBuilder(name, aliases, generateHelpCommand).apply(builder).also { it.build() }
-}
 
 class CommandBuilder @JvmOverloads internal constructor(
     private val name: String,

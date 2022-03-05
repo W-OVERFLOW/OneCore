@@ -32,3 +32,26 @@ fun sendBrandedNotification(
         height = 30.pixels()
     })
 }
+
+/**
+ * Push a new notification with the given title, message, customizable duration, [action] which will be invoked
+ * when the user clicks on the notification, and [close] which will be invoked when the notification has expired.
+ * This can be used for all sorts of purposes, as it is generally useful
+ * to respond with some type of action when the user clicks a notification.
+ *
+ * Meant to be used in Java ONLY.
+ *
+ * @param title notification header
+ * @param message notification body
+ * @param duration how long in seconds the notification will stay on screen
+ * @param action ran when the player clicks the notification
+ * @param close ran when the notification has expired
+ */
+@JvmOverloads
+fun pushNotification(
+    title: String,
+    message: String,
+    duration: Float = 4f,
+    action: Runnable = Runnable {  },
+    close: Runnable = Runnable {  }
+) = EssentialAPI.getNotifications().push(title, message, duration, { action.run() }, { close.run() })
