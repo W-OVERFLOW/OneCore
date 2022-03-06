@@ -13,6 +13,4 @@ fun command(
     aliases: ArrayList<String> = arrayListOf(),
     generateHelpCommand: Boolean = true,
     builder: CommandBuilder.() -> Unit
-): CommandBuilder {
-    return CommandBuilder(name, aliases, generateHelpCommand).apply(builder).also { it.build() }
-}
+) = CommandBuilder(name, aliases, generateHelpCommand).apply(builder).also { it.build() }

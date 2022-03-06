@@ -1,15 +1,16 @@
 package cc.woverflow.onecore
 
 import cc.woverflow.onecore.config.OneCoreConfig
-import cc.woverflow.onecore.utils.KeybindHandler
-import cc.woverflow.onecore.utils.Updater
-import cc.woverflow.onecore.utils.command
-import cc.woverflow.onecore.utils.openScreen
+import cc.woverflow.onecore.utils.*
+import gg.essential.api.utils.Multithreading
+import gg.essential.api.utils.WebUtil
 import net.minecraft.client.Minecraft
+import net.minecraft.launchwrapper.Launch
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import java.io.File
+
 
 @Mod(
     name = OneCore.NAME,
@@ -42,6 +43,9 @@ object OneCore {
                     OneCoreConfig.openScreen()
                 }
             }
+            Multithreading.runAsync {
+                UniqueUsersMetric.putApi()
+            }
         }
     }
 
@@ -50,6 +54,23 @@ object OneCore {
         if (!postInit) {
             postInit = true
             Updater.update()
+        }
+    }
+
+    private object UniqueUsersMetric {
+        fun putApi() {
+            try {
+                if (!(Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false) as Boolean)) {
+                    val url = "https://api.isxander.dev/metric/put/onecore?type=unique_users&uuid=${Minecraft.getMinecraft().session.profile.id}"
+                    val response = WebUtil.fetchJsonElement(url).asJsonObject
+                    if (!response["success"].asBoolean) {
+                        println("Metric API could not be called: ${response["error"].asString}")
+                        return
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
