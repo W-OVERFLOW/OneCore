@@ -15,13 +15,13 @@ fun FontRenderer.drawBorderedString(
 ): Int {
     val noColors = text.replace(regex, "\u00A7r")
     var yes = 0
-    if ((opacity / 4) > 3) {
+    if (opacity > 3) {
         bypassNameHighlight = true
         for (xOff in -2..2) {
             for (yOff in -2..2) {
                 if (xOff * xOff != yOff * yOff) {
                     yes += drawString(
-                        noColors, (xOff / 2f) + x, (yOff / 2f) + y, (opacity / 4) shl 24, false
+                        noColors, (xOff / 2f) + x, (yOff / 2f) + y, (opacity) shl 24, false
                     )
                 }
             }

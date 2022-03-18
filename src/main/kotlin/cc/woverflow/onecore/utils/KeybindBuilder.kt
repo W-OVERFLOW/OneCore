@@ -1,10 +1,7 @@
 package cc.woverflow.onecore.utils
 
 import net.minecraft.client.settings.KeyBinding
-import net.minecraftforge.common.MinecraftForge.EVENT_BUS
 import net.minecraftforge.fml.client.registry.ClientRegistry
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.InputEvent
 import org.lwjgl.input.Keyboard
 
 internal val keybinds = arrayListOf<KeybindBuilder>()
@@ -38,12 +35,7 @@ class KeybindBuilder(name: String, category: String, defaultKey: Int) : Builder 
 
 internal object KeybindHandler {
 
-    fun initialize() {
-        EVENT_BUS.register(this)
-    }
-
-    @SubscribeEvent
-    fun onKeyboardInput(event: InputEvent.KeyInputEvent) {
+    fun onKeyboardInput() {
         val release = Keyboard.getEventKeyState()
         val repeat = Keyboard.isRepeatEvent()
         val keyCode = Keyboard.getEventKey()

@@ -22,6 +22,15 @@ import java.net.URI
 fun WebUtil.fetchJsonElement(url: String): JsonElement = (fetchString(url) ?: throw IOException()).asJsonElement()
 
 /**
+ * Fetch a JSON object from the internet.
+ *
+ * @param url JSON location
+ * @return page content as a [JsonElement], or null if getting the JSON failed.
+ * @see fetchJsonElement
+ */
+fun WebUtil.fetchJsonElementSafe(url: String): JsonElement? = fetchString(url)?.asJsonElementSafe()?.getOrNull()
+
+/**
  * Download a file from the internet.
  *
  * @param url file location

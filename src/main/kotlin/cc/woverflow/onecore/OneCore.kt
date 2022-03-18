@@ -1,27 +1,20 @@
 package cc.woverflow.onecore
 
 import cc.woverflow.onecore.config.OneCoreConfig
-import cc.woverflow.onecore.utils.*
+import cc.woverflow.onecore.utils.Updater
+import cc.woverflow.onecore.utils.command
+import cc.woverflow.onecore.utils.fetchJsonElement
+import cc.woverflow.onecore.utils.openScreen
 import gg.essential.api.utils.Multithreading
 import gg.essential.api.utils.WebUtil
 import net.minecraft.client.Minecraft
 import net.minecraft.launchwrapper.Launch
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import java.io.File
 
 
-@Mod(
-    name = OneCore.NAME,
-    modid = OneCore.ID,
-    version = OneCore.VERSION,
-    modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter"
-)
 object OneCore {
 
     private var init = false
-    private var postInit = false
 
     const val NAME = "@NAME@"
     const val ID = "@ID@"
@@ -29,14 +22,12 @@ object OneCore {
 
     val configFile = File(File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), "OneCore")
 
-    @Mod.EventHandler
-    fun onInit(event: FMLInitializationEvent?) {
+    fun init() {
         if (!init) {
             init = true
             if (!configFile.exists()) {
                 configFile.mkdirs()
             }
-            KeybindHandler.initialize()
             OneCoreConfig.preload()
             command("onecore") {
                 main {
@@ -46,13 +37,6 @@ object OneCore {
             Multithreading.runAsync {
                 UniqueUsersMetric.putApi()
             }
-        }
-    }
-
-    @Mod.EventHandler
-    fun onPostInit(event: FMLPostInitializationEvent?) {
-        if (!postInit) {
-            postInit = true
             Updater.update()
         }
     }
