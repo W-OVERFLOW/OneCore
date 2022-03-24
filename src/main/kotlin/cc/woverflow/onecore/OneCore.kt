@@ -45,7 +45,7 @@ object OneCore {
         fun putApi() {
             try {
                 if (!(Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false) as Boolean)) {
-                    val url = "https://api.isxander.dev/metric/put/onecore?type=unique_users&uuid=${Minecraft.getMinecraft().session.profile.id}"
+                    val url = "https://api.isxander.dev/metric/put/onecore?type=users&uuid=${Minecraft.getMinecraft().session.profile.id}"
                     val response = WebUtil.fetchJsonElement(url).asJsonObject
                     if (!response["success"].asBoolean) {
                         println("Metric API could not be called: ${response["error"].asString}")
