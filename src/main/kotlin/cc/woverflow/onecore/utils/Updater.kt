@@ -11,6 +11,7 @@ import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.dsl.childOf
 import gg.essential.universal.UDesktop
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion
 import java.io.File
 import java.util.*
@@ -25,43 +26,79 @@ object Updater {
 
     private val modsToRemove: ArrayList<Mod> = arrayListOf()
 
+    /**
+     * Adds the mod specified. For forge mods, it is recommended to run this method during the [FMLPreInitializationEvent] event to easily access the file the mod is running on.
+     * The repo of the mod will automatically be inferred as "W-OVERFLOW/ID_OF_MOD".
+     * @param modFile The file of the mod.
+     * @param mod The main class of the mod (needs to be annotated with [net.minecraftforge.fml.common.Mod]
+     */
+    fun addToUpdater(modFile: File, mod: Any) {
+        if (mod.javaClass.isAnnotationPresent(net.minecraftforge.fml.common.Mod::class.java)) {
+            val annotation = mod.javaClass.getDeclaredAnnotation(net.minecraftforge.fml.common.Mod::class.java)
+            mods.add(Mod(modFile, annotation.name, annotation.modid, annotation.version, "W-OVERFLOW/${annotation.modid}"))
+        }
+    }
+
+    /**
+     * Adds the mod specified. For forge mods, it is recommended to run this method during the [FMLPreInitializationEvent] event to easily access the file the mod is running on.
+     * @param modFile The file of the mod.
+     * @param mod The main class of the mod (needs to be annotated with [net.minecraftforge.fml.common.Mod]
+     * @param repo The GitHub repository to check for updates.
+     */
+    fun addToUpdater(modFile: File, mod: Any, repo: String) {
+        if (mod.javaClass.isAnnotationPresent(net.minecraftforge.fml.common.Mod::class.java)) {
+            val annotation = mod.javaClass.getDeclaredAnnotation(net.minecraftforge.fml.common.Mod::class.java)
+            mods.add(Mod(modFile, annotation.name, annotation.modid, annotation.version, repo))
+        }
+    }
+
+    /**
+     * Adds the mod specified. For forge mods, it is recommended to run this method during the [FMLPreInitializationEvent] event to easily access the file the mod is running on.
+     * @param modFile The file of the mod.
+     * @param name The name of the mod, visual only.
+     * @param id The ID of the mod.
+     * @param version The version of the mod.
+     * @param repo The GitHub repository to check for updates.
+     */
     fun addToUpdater(modFile: File, name: String, id: String, version: String, repo: String) {
         mods.add(Mod(modFile, name, id, version, repo))
     }
 
-    fun update() {
+    internal fun update() {
         Multithreading.runAsync {
             for (mod in mods) {
                 if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
                     sendBrandedNotification(
                         "OneCore",
                         "${mod.name} ${mod.upstreamVersion?.version} is available!\nClick to open!",
-                        5f,
+                        20f,
                         action = {
                             mod.handleUpdate()
                         })
                 }
             }
             Runtime.getRuntime().addShutdownHook(Thread {
-                try {
-                    if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
-                        val sipStatus = Runtime.getRuntime().exec("csrutil status")
-                        sipStatus.waitFor()
-                        if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
-                                .contains("System Integrity Protection status: disabled.")) {
-                            UDesktop.open(modsToRemove.first().modFile.parentFile)
+                if (modsToRemove.isNotEmpty()) {
+                    try {
+                        if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
+                            val sipStatus = Runtime.getRuntime().exec("csrutil status")
+                            sipStatus.waitFor()
+                            if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
+                                    .contains("System Integrity Protection status: disabled.")) {
+                                UDesktop.open(modsToRemove.first().modFile.parentFile)
+                            }
                         }
+                        val file = File(OneCore.configFile, "Deleter-1.3.jar")
+                        if (UDesktop.isLinux) {
+                            Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
+                        } else if (UDesktop.isMac) {
+                            Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
+                        }
+                        Runtime.getRuntime()
+                            .exec("java -jar ${file.name} ${modsToRemove.joinToString(" ") {it.modFile.absolutePath}}", null, file.parentFile)
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
                     }
-                    val file = File(OneCore.configFile, "Deleter-1.3.jar")
-                    if (UDesktop.isLinux) {
-                        Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
-                    } else if (UDesktop.isMac) {
-                        Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
-                    }
-                    Runtime.getRuntime()
-                        .exec("java -jar ${file.name} ${modsToRemove.joinToString(" ") {it.modFile.absolutePath}}", null, file.parentFile)
-                } catch (e: Throwable) {
-                    e.printStackTrace()
                 }
             })
         }
