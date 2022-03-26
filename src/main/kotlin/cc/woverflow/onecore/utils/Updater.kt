@@ -32,12 +32,10 @@ object Updater {
     fun update() {
         Multithreading.runAsync {
             for (mod in mods) {
-                val latestRelease = WebUtil.fetchJsonElement("https://api.github.com/repos/${mod.repo}/releases/latest").asJsonObject
-                val latestTag = latestRelease["tag_name"].asString
                 if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
                     sendBrandedNotification(
                         "OneCore",
-                        "${mod.name} $latestTag is available!\nClick to open!",
+                        "${mod.name} ${mod.upstreamVersion?.version} is available!\nClick to open!",
                         5f,
                         action = {
                             mod.handleUpdate()
@@ -45,27 +43,25 @@ object Updater {
                 }
             }
             Runtime.getRuntime().addShutdownHook(Thread {
-                for (mod in modsToRemove) {
-                    try {
-                        if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
-                            val sipStatus = Runtime.getRuntime().exec("csrutil status")
-                            sipStatus.waitFor()
-                            if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
-                                    .contains("System Integrity Protection status: disabled.")) {
-                                UDesktop.open(mod.modFile.parentFile)
-                            }
+                try {
+                    if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
+                        val sipStatus = Runtime.getRuntime().exec("csrutil status")
+                        sipStatus.waitFor()
+                        if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
+                                .contains("System Integrity Protection status: disabled.")) {
+                            UDesktop.open(modsToRemove.first().modFile.parentFile)
                         }
-                        val file = File(OneCore.configFile, "Deleter-1.3.jar")
-                        if (UDesktop.isLinux) {
-                            Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
-                        } else if (UDesktop.isMac) {
-                            Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
-                        }
-                        Runtime.getRuntime()
-                            .exec("java -jar ${file.name} ${mod.modFile.absolutePath}", null, file.parentFile)
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
                     }
+                    val file = File(OneCore.configFile, "Deleter-1.3.jar")
+                    if (UDesktop.isLinux) {
+                        Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
+                    } else if (UDesktop.isMac) {
+                        Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
+                    }
+                    Runtime.getRuntime()
+                        .exec("java -jar ${file.name} ${modsToRemove.joinToString(" ") {it.modFile.absolutePath}}", null, file.parentFile)
+                } catch (e: Throwable) {
+                    e.printStackTrace()
                 }
             })
         }
