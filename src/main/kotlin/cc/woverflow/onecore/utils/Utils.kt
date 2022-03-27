@@ -9,6 +9,7 @@ import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.pixels
+import net.minecraft.client.Minecraft
 
 /**
  * Push a new notification with the given title, message, customizable duration, action, and close action
@@ -28,8 +29,8 @@ fun sendBrandedNotification(
 ) = EssentialAPI.getNotifications().push(title, message, duration, action, close) {
     this.elementaVersion = ElementaVersion.V1
     this.withCustomComponent(Slot.PREVIEW, UIImage.ofResource("/assets/onecore/woverflow.png") constrain {
-        width = 30.pixels()
-        height = 30.pixels()
+        width = 40.pixels()
+        height = 40.pixels()
     })
 }
 
@@ -55,3 +56,6 @@ fun pushNotification(
     action: Runnable = Runnable {  },
     close: Runnable = Runnable {  }
 ) = EssentialAPI.getNotifications().push(title, message, duration, { action.run() }, { close.run() })
+
+val mc: Minecraft
+    get() = Minecraft.getMinecraft()
