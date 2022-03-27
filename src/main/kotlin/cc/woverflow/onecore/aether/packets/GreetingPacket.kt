@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.websocket.packets
+package cc.woverflow.onecore.aether.packets
 
 import com.google.gson.JsonObject
 

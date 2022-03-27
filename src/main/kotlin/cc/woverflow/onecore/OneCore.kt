@@ -2,8 +2,8 @@ package cc.woverflow.onecore
 
 import cc.woverflow.onecore.config.OneCoreConfig
 import cc.woverflow.onecore.utils.*
-import cc.woverflow.onecore.websocket.Client
-import cc.woverflow.onecore.websocket.WebsocketUtils
+import cc.woverflow.onecore.aether.AetherClient
+import cc.woverflow.onecore.aether.WebsocketUtils
 import gg.essential.api.utils.Multithreading
 import gg.essential.api.utils.WebUtil
 import net.minecraft.client.Minecraft
@@ -49,10 +49,10 @@ object OneCore {
                     println("Authentication failed: error $status")
                 } else {
                     println("Authentication success! code: $status")
-                    Client.connectBlocking()
+                    AetherClient.connectBlocking()
                     Runtime.getRuntime().addShutdownHook(Thread {
-                        if (Client.isOpen) {
-                            Client.closeBlocking()
+                        if (AetherClient.isOpen) {
+                            AetherClient.closeBlocking()
                         }
                     })
                 }

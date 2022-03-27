@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.websocket.packets
+package cc.woverflow.onecore.aether.packets
 
 import org.java_websocket.framing.CloseFrame
 
@@ -22,7 +22,8 @@ enum class CloseType constructor(val code: Int) {
     SERVICE_RESTART(1012),
     TRY_AGAIN_LATER(1013),
     BAD_GATEWAY(1014),
-    TLS_HANDSHAKE_FAIL(1015);
+    TLS_HANDSHAKE_FAIL(1015),
+    SYSTEM_MAINTENANCE(1016);
 
     fun asCloseFrame(): CloseFrame = asCloseFrame(this)
 
