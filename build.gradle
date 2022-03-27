@@ -31,9 +31,11 @@ java {
 
 blossom {
     def className = "src/main/kotlin/cc/woverflow/onecore/OneCore.kt"
+    def aetherClass = "src/main/kotlin/codes/aether/aether4j/Verifier.kt"
     replaceToken("@VER@", project.version, className)
     replaceToken("@NAME@", mod_name, className)
     replaceToken("@ID@", mod_id, className)
+    replaceToken("@AETHER@", aether_token, aetherClass)
 }
 
 loom {
@@ -57,7 +59,6 @@ loom {
 
 repositories {
     maven { url 'https://repo.woverflow.cc/' }
-    maven { url "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 }
 
 configurations {
