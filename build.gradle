@@ -73,8 +73,9 @@ dependencies {
         transitive = false
     }
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.0.0")
-    compileOnly 'gg.essential:essential-1.8.9-forge:1933'
+    compileOnly 'gg.essential:essential-1.8.9-forge:2117'
     compileOnly("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+    include 'org.java-websocket:Java-WebSocket:1.5.2'
 }
 
 processResources {
@@ -98,6 +99,13 @@ jar {
             "MixinConfigs": "mixins.onecore.json",
             'ForceLoadAsMod': true
     )
+}
+
+sourcesJar {
+    exclude("cc/woverflow/onecore/websocket/**")
+    exclude("cc/woverflow/onecore/OneCore.**")
+    exclude("cc/woverflow/onecore/mixin/**")
+    exclude("mixins.onecore.json")
 }
 
 sourceSets {
