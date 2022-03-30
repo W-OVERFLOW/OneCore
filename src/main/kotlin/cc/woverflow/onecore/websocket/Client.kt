@@ -1,8 +1,8 @@
-package cc.woverflow.onecore.aether
+package cc.woverflow.onecore.websocket
 
 import cc.woverflow.onecore.utils.asJsonElement
 import cc.woverflow.onecore.utils.mc
-import cc.woverflow.onecore.aether.packets.*
+import cc.woverflow.onecore.websocket.packets.*
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import gg.essential.api.utils.Multithreading
@@ -13,16 +13,9 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
-// import codes.aether.aether4j.ForgeClient
-// import codes.aether.aether4j.connections.mcp.Forge
-// import codes.aether.aether4j.connections.loom.WLoom
-// import codes.aether.aether4j.connections.mcp.MCP
-// import codes.aether.aether4j.connections.loom.Mixins
-// import codes.aether.aether4j.connections.core.AetherWAPI
-// import codes.aether.aether4j.connections.helper.TebexAPI
 
 
-object AetherClient : WebSocketClient(URI.create("ws://localhost:8887")) {
+object Client : WebSocketClient(URI.create("ws://localhost:8887")) {
     var userType: UserType? = null
     private set
 
@@ -39,7 +32,7 @@ object AetherClient : WebSocketClient(URI.create("ws://localhost:8887")) {
     }
 
     override fun onOpen(handshakedata: ServerHandshake) {
-        logger.info("Aether Connection opened | Code: ${handshakedata.httpStatus} | Message: ${handshakedata.httpStatusMessage}")
+        logger.info("Websocket opened | Code: ${handshakedata.httpStatus} | Message: ${handshakedata.httpStatusMessage}")
         send(GreetingPacket(mc.session.playerID))
     }
 
@@ -68,14 +61,14 @@ object AetherClient : WebSocketClient(URI.create("ws://localhost:8887")) {
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
         when (CloseType.valueOf(code)) {
             CloseType.NORMAL -> {
-                logger.info("Closing Aether connection... (reason - $reason)")
+                logger.info("Closing websocket connection... (reason - $reason)")
             }
             else -> {
                 ++failed
                 if (failed >= 3) {
-                    logger.error("Aether connection failed. (code: $code | reason: $reason)")
+                    logger.error("Did NOT websocket successfully (code: $code | reason: $reason)")
                 } else {
-                    logger.warn("Connection failed $failed times... trying again")
+                    logger.warn("Failed $failed times... trying again")
                     Multithreading.schedule(this::reconnectBlocking, 5, TimeUnit.SECONDS)
                 }
             }

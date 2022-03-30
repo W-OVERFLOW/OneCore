@@ -31,11 +31,9 @@ java {
 
 blossom {
     def className = "src/main/kotlin/cc/woverflow/onecore/OneCore.kt"
-    def aetherClass = "src/main/kotlin/codes/aether/aether4j/Verifier.kt"
     replaceToken("@VER@", project.version, className)
     replaceToken("@NAME@", mod_name, className)
     replaceToken("@ID@", mod_id, className)
-    replaceToken("@AETHER@", aether_token, aetherClass)
 }
 
 loom {
@@ -59,7 +57,7 @@ loom {
 
 repositories {
     maven { url 'https://repo.woverflow.cc/' }
-    // mavenLocal()
+    maven { url "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 }
 
 configurations {
@@ -78,7 +76,6 @@ dependencies {
     compileOnly 'gg.essential:essential-1.8.9-forge:2117'
     compileOnly("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     include 'org.java-websocket:Java-WebSocket:1.5.2'
-    // include 'codes.aether:Aether4j:0.0.1-alpha'
 }
 
 processResources {
@@ -100,7 +97,6 @@ jar {
             "ModSide": "CLIENT",
             "TweakOrder": "0",
             "MixinConfigs": "mixins.onecore.json",
-            "UsesAetherTokenAuth": true,
             'ForceLoadAsMod': true
     )
 }

@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.aether
+package cc.woverflow.onecore.websocket
 
 import com.google.gson.JsonObject
 import org.apache.http.HttpStatus

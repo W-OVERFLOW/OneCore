@@ -1,9 +1,8 @@
-package cc.woverflow.onecore.aether.packets
+package cc.woverflow.onecore.websocket.packets
 
 enum class UserType {
     USER,
     STAFF,
     ADMIN,
-    ETHAN,
     WYVEST;
 }
