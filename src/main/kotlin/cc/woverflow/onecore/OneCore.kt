@@ -6,7 +6,6 @@ import cc.woverflow.onecore.websocket.Client
 import cc.woverflow.onecore.websocket.WebsocketUtils
 import gg.essential.api.utils.Multithreading
 import gg.essential.api.utils.WebUtil
-import net.minecraft.client.Minecraft
 import net.minecraft.launchwrapper.Launch
 import net.minecraft.util.Session
 import java.io.File
@@ -20,7 +19,7 @@ object OneCore {
     const val ID = "@ID@"
     const val VERSION = "@VER@"
 
-    val configFile = File(File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), "OneCore")
+    val configFile = File(File(mc.mcDataDir, "W-OVERFLOW"), "OneCore")
 
     fun init() {
         if (!init) {
@@ -64,7 +63,7 @@ object OneCore {
         fun putApi() {
             try {
                 if (!(Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false) as Boolean)) {
-                    val url = "https://api.isxander.dev/metric/put/onecore?type=users&uuid=${Minecraft.getMinecraft().session.profile.id}"
+                    val url = "https://api.isxander.dev/metric/put/onecore?type=users&uuid=${mc.session.profile.id}"
                     val response = WebUtil.fetchJsonElement(url).asJsonObject
                     if (!response["success"].asBoolean) {
                         println("Metric API could not be called: ${response["error"].asString}")

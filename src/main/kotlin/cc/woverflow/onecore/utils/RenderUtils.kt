@@ -3,14 +3,14 @@
 package cc.woverflow.onecore.utils
 
 import gg.essential.universal.UGraphics
-import net.minecraft.client.gui.FontRenderer
+import gg.essential.universal.utils.MCFontRenderer
 
 private val regex = Regex("(?i)\\u00A7[0-9a-f]")
 
 /**
  * Draws a string with a border shadow effect.
  */
-fun FontRenderer.drawBorderedString(
+fun MCFontRenderer.drawBorderedString(
     text: String, x: Int, y: Int, color: Int, opacity: Int
 ): Int {
     val noColors = text.replace(regex, "\u00A7r")

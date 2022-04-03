@@ -9,7 +9,8 @@ import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.pixels
-import net.minecraft.client.Minecraft
+import gg.essential.universal.UMinecraft
+import gg.essential.universal.utils.MCMinecraft
 
 /**
  * Push a new notification with the given title, message, customizable duration, action, and close action
@@ -57,5 +58,5 @@ fun pushNotification(
     close: Runnable = Runnable {  }
 ) = EssentialAPI.getNotifications().push(title, message, duration, { action.run() }, { close.run() })
 
-val mc: Minecraft
-    get() = Minecraft.getMinecraft()
+val mc: MCMinecraft
+    get() = UMinecraft.getMinecraft()

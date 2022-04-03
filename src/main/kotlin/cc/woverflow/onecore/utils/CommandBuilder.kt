@@ -4,6 +4,9 @@ import gg.essential.universal.UChat
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.BlockPos
+//#if MC==11202
+import net.minecraft.server.MinecraftServer
+//#endif
 import net.minecraftforge.client.ClientCommandHandler
 import java.util.*
 
@@ -72,19 +75,31 @@ class CommandBuilder @JvmOverloads internal constructor(
         }
         ClientCommandHandler.instance.registerCommand(object : CommandBase() {
 
+            //#if MC==10809
             override fun getCommandName(): String {
-                return name
+            //#else
+            //$$ override fun getName(): String {
+            //#endif
+                return this@CommandBuilder.name
             }
 
             override fun getCommandUsage(sender: ICommandSender?): String {
                 return "/$name $subCommandList"
             }
 
+            //#if MC==10809
             override fun getCommandAliases(): MutableList<String> {
-                return aliases
+            //#else
+            //$$ override fun getAliases(): MutableList<String> {
+            //#endif
+                return this@CommandBuilder.aliases
             }
 
+            //#if MC==10809
             override fun processCommand(sender: ICommandSender?, args: Array<String>) {
+            //#else
+            //$$ override fun execute(server: MinecraftServer, sender: ICommandSender?, args: Array<String>) {
+            //#endif
                 if (args.isEmpty()) {
                     mainCommand?.action?.invoke()
                 } else {
@@ -96,9 +111,15 @@ class CommandBuilder @JvmOverloads internal constructor(
                 }
             }
 
+            //#if MC==10809
             override fun addTabCompletionOptions(
                 sender: ICommandSender?, args: Array<String>?, pos: BlockPos?
             ): MutableList<String> {
+            //#else
+            //$$ override fun getTabCompletions(
+            //$$ server: MinecraftServer, sender: ICommandSender?, args: Array<String>?, pos: BlockPos?
+            //$$ ): MutableList<String> {
+            //#endif
                 return tabCompletion?.invoke(sender, args, pos) ?: run {
                     if (args != null && args.isNotEmpty()) {
                         val last = args[args.size - 1]
