@@ -1,9 +1,5 @@
 pluginManagement {
     repositories {
-        mavenLocal()
-        gradlePluginPortal()
-        mavenCentral()
-        google()
         maven("https://repo.woverflow.cc/")
         flatDir {
             dirs=setOf(file("../../libs"))
