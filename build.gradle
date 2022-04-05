@@ -97,6 +97,11 @@ dependencies {
         forge("net.minecraftforge:forge:$forgeVersion")
     } else {
 
+        include(modApi("net.axay:fabrikmc-commands:1.7.+") {
+            exclude(module: "fabric-api")
+        }) {
+            exclude(module: "fabric-api")
+        }
         modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
         modImplementation "net.fabricmc.fabric-api:fabric-api:$fabricApiVersion"
         modImplementation("net.fabricmc:fabric-language-kotlin:$fabricLanguageKotlinVersion")

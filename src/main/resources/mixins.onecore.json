@@ -3,6 +3,7 @@
   "minVersion": "0.7",
   "package": "cc.woverflow.onecore.mixin",
   "refmap": "mixins.${id}.refmap.json",
+  "plugin": "cc.woverflow.onecore.plugin.OneCorePlugin",
   "mixins": [
 
   ],

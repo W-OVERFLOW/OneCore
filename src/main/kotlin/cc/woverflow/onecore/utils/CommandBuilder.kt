@@ -17,7 +17,7 @@ class CommandBuilder @JvmOverloads internal constructor(
 ) : Builder {
     private var mainCommand: MainCommand? = null
     private val subCommands = hashMapOf<String, SubCommand>()
-    private var tabCompletion: ((sender: ICommandSender?, args: Array<String>?, pos: BlockPos?) -> MutableList<String>)? =
+    private var tabCompletion: ((args: Array<String>?) -> MutableList<String>)? =
         null
 
     private val subCommandList: String by lazy {
@@ -60,9 +60,16 @@ class CommandBuilder @JvmOverloads internal constructor(
         subCommands[name] = SubCommand(description, options, action)
     }
 
-    fun onTabCompletion(handle: (sender: ICommandSender?, args: Array<String>?, pos: BlockPos?) -> MutableList<String>) {
+    fun onTabCompletion(handle: (args: Array<String>?) -> MutableList<String>) {
         tabCompletion = handle
     }
+
+    //#if MODERN==0
+    @Deprecated("Will not work in 1.16+")
+    fun onTabCompletion(handle: (sender: ICommandSender?, args: Array<String>?, pos: BlockPos?) -> MutableList<String>) {
+        tabCompletion = { args: Array<String>? -> handle.invoke(null, args, null) }
+    }
+    //#endif
 
     override fun build() {
         if (generateHelpCommand && !subCommands.contains("help")) {
@@ -73,6 +80,7 @@ class CommandBuilder @JvmOverloads internal constructor(
                 }
             }
         }
+        //#if MODERN==0
         ClientCommandHandler.instance.registerCommand(object : CommandBase() {
 
             //#if MC==10809
@@ -120,7 +128,7 @@ class CommandBuilder @JvmOverloads internal constructor(
             //$$ server: MinecraftServer, sender: ICommandSender?, args: Array<String>?, pos: BlockPos?
             //$$ ): MutableList<String> {
             //#endif
-                return tabCompletion?.invoke(sender, args, pos) ?: run {
+                return tabCompletion?.invoke(args) ?: run {
                     if (args != null && args.isNotEmpty()) {
                         val last = args[args.size - 1]
                         val subcommands = arrayListOf<String>()
@@ -140,7 +148,27 @@ class CommandBuilder @JvmOverloads internal constructor(
                 return -1
             }
         })
+        //#else
+        //$$ clientCommand(this@CommandBuilder.name) {
+        //$$        runs {
+        //$$            mainCommand?.action?.invoke()
+        //$$        }
+        //$$        for (command in subCommands) {
+        //$$            argument<List<String>>("test", builder = ListArgumentType()) { thing: ->
+        //$$                runs {
+        //$$                    command.value.action.invoke(thing)
+        //$$                }
+        //$$            }
+        //$$        }
+        //$$ }
+        //#endif
     }
+
+    //#if MODERN==1
+    //$$ class ListArgumentType : ArgumentType<List<String>> {
+    //$$    override fun parse(reader: StringReader?): List<String> = reader?.getString()?.split(" ") ?: emptyList()
+    //$$ }
+    //#endif
 
     inner class MainCommand @JvmOverloads internal constructor(
         var description: String = "", var action: () -> Unit

@@ -24,6 +24,9 @@ class OneCorePlugin : IMixinConfigPlugin {
     override fun getMixins(): MutableList<String> {
         val array = arrayListOf("")
         array.add("MinecraftMixin")
+        //#if MODERN==1
+        //$$ array.add("MinecraftAccessor")
+        //#endif
         return array
     }
 

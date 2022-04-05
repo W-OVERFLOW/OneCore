@@ -8,7 +8,6 @@ import cc.woverflow.onecore.websocket.WebsocketUtils
 import gg.essential.api.utils.Multithreading
 import gg.essential.api.utils.WebUtil
 import net.minecraft.launchwrapper.Launch
-import net.minecraft.util.Session
 import java.io.File
 
 
@@ -40,12 +39,18 @@ object OneCore {
             }
             Updater.update()
             Multithreading.runAsync {
-                val session: Session = mc.session
+                val session = mc.session
                 val profile = session.profile
 
                 val uuid = profile.id.toString().replace("-", "")
-                val serverHash: String = WebsocketUtils.hash(uuid + WebsocketUtils.nextSalt)
-                val status = WebsocketUtils.authenticate(session.token, uuid, serverHash)
+                val serverHash = WebsocketUtils.hash(uuid + WebsocketUtils.nextSalt)
+                val status = WebsocketUtils.authenticate(
+                    //#if MODERN==0
+                    session.token,
+                    //#else
+                    //$$ session.sessionId,
+                    //#endif
+                    uuid, serverHash)
                 if (status / 100 != 2) {
                     println("Authentication failed: error $status")
                 } else {
@@ -64,7 +69,7 @@ object OneCore {
     private object UniqueUsersMetric {
         fun putApi() {
             try {
-                if (!(Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false) as Boolean)) {
+                if (!isNotEligible()) {
                     val url = "https://api.isxander.dev/metric/put/onecore?type=users&uuid=${mc.session.profile.id}"
                     val response = WebUtil.fetchJsonElement(url).asJsonObject
                     if (!response["success"].asBoolean) {
@@ -75,6 +80,14 @@ object OneCore {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        fun isNotEligible(): Boolean {
+            //#if MODERN==0
+            return Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false) as Boolean
+            //#else
+            //$$ return (mc as cc.woverflow.onecore.mixin.AccessorMinecraft).userApiService != UserApiService.OFFLINE
+            //#endif
         }
     }
 }
