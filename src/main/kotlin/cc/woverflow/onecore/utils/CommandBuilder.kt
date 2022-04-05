@@ -13,9 +13,6 @@ import net.minecraftforge.client.ClientCommandHandler
 //#if MC==11202
 //$$ import net.minecraft.server.MinecraftServer
 //#endif
-//#if FABRIC==1
-//$$ import net.axay.fabrik.commands.clientCommand
-//#endif
 import java.util.*
 
 class CommandBuilder @JvmOverloads internal constructor(

@@ -1,5 +1,5 @@
 {
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "${java_level}",
   "minVersion": "0.7",
   "package": "cc.woverflow.onecore.mixin",
   "refmap": "mixins.${id}.refmap.json",
