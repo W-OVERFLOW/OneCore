@@ -2,11 +2,14 @@
 //$$ package cc.woverflow.onecore.mixin;
 
 //$$ import com.mojang.authlib.minecraft.UserApiService;
-//$$ import net.minecraft.client.MinecraftClient;
 //$$ import org.spongepowered.asm.mixin.Mixin;
 //$$ import org.spongepowered.asm.mixin.gen.Accessor;
 
-//$$ @Mixin(MinecraftClient.class)
+    //#if FABRIC==1
+    //$$ @Mixin(net.minecraft.client.MinecraftClient.class)
+    //#else
+    //$$ @Mixin(net.minecraft.client.Minecraft.class)
+    //#endif
 //$$ public interface MinecraftAccessor {
 //$$     @Accessor
 //$$     UserApiService getUserApiService();

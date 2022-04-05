@@ -2,17 +2,19 @@
 
 package cc.woverflow.onecore.utils
 
+//#if MODERN==0
 import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.GuiUtil
-import gg.essential.api.utils.Multithreading
+//#else
+//$$ import gg.essential.universal.UScreen
+//#endif
 import gg.essential.universal.utils.MCScreen
 import gg.essential.vigilance.Vigilant
 
 /**
  * Queue a new Vigilance GUI for opening. Runs async from main thread to prevent lag.
- * @see GuiUtil.openScreen
  */
-fun Vigilant.openScreen() = Multithreading.runAsync { gui()?.openScreen() }
+fun Vigilant.openScreen() = launchCoroutine { gui()?.openScreen() }
 
 /**
  * Queue a new screen for opening.

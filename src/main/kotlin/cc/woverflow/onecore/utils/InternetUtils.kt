@@ -12,13 +12,14 @@ package cc.woverflow.onecore.utils
 //$$ import org.apache.hc.core5.http.io.entity.EntityUtils
 //$$ import org.apache.hc.core5.http.message.BasicHeader
 //$$ import org.apache.hc.core5.util.Timeout
-//$$ import org.apache.hc.client5.http.classic.methods.HttpGet
 //$$ import org.apache.hc.core5.http.HttpResponse
 //$$ import java.io.FileOutputStream
 //#endif
 import cc.woverflow.onecore.OneCore
 import com.google.gson.JsonElement
+//#if MODERN==0
 import gg.essential.api.utils.WebUtil
+//#endif
 import gg.essential.universal.UDesktop
 import java.io.File
 import java.io.IOException
@@ -28,7 +29,7 @@ import java.net.URI
  * Stolen from Skytils under AGPLv3
  * https://github.com/Skytils/SkytilsMod/blob/1.x/LICENSE.md
  */
-object InternetUtils {
+object APIUtil {
     //#if MODERN==1
     //$$ private val builder: HttpClientBuilder =
     //$$     HttpClients.custom().setUserAgent("OneCore/${OneCore.VERSION}")
@@ -95,7 +96,7 @@ object InternetUtils {
     }
 }
 
-fun InternetUtils.getJsonElement(url: String): JsonElement? = getString(url)?.asJsonElementSafe()?.getOrNull()
+fun APIUtil.getJsonElement(url: String): JsonElement? = getString(url)?.asJsonElementSafe()?.getOrNull()
 
 //#if MODERN==0
 

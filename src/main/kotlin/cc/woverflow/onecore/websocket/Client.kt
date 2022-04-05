@@ -1,11 +1,13 @@
 package cc.woverflow.onecore.websocket
 
 import cc.woverflow.onecore.utils.asJsonElement
-import cc.woverflow.onecore.utils.mc
+import cc.woverflow.onecore.utils.launchCoroutine
+import cc.woverflow.onecore.utils.session
 import cc.woverflow.onecore.websocket.packets.*
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-import gg.essential.api.utils.Multithreading
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -33,7 +35,14 @@ object Client : WebSocketClient(URI.create("ws://localhost:8887")) {
 
     override fun onOpen(handshakedata: ServerHandshake) {
         logger.info("Websocket opened | Code: ${handshakedata.httpStatus} | Message: ${handshakedata.httpStatusMessage}")
-        send(GreetingPacket(mc.session.playerID))
+        send(GreetingPacket(
+            session.
+            //#if MODERN==0
+            playerID
+            //#else
+            //$$ uuid
+            //#endif
+        ))
     }
 
     override fun onMessage(message: String?) {
@@ -69,7 +78,12 @@ object Client : WebSocketClient(URI.create("ws://localhost:8887")) {
                     logger.error("Did NOT websocket successfully (code: $code | reason: $reason)")
                 } else {
                     logger.warn("Failed $failed times... trying again")
-                    Multithreading.schedule(this::reconnectBlocking, 5, TimeUnit.SECONDS)
+                    launchCoroutine {
+                        withContext(Dispatchers.IO) {
+                            Thread.sleep(5000)
+                            reconnectBlocking()
+                        }
+                    }
                 }
             }
         }

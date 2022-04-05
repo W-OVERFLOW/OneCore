@@ -1,13 +1,14 @@
 package cc.woverflow.onecore.utils
 
+//#if MODERN==0
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+//#endif
 import cc.woverflow.onecore.OneCore
 import cc.woverflow.onecore.config.OneCoreConfig
+import cc.woverflow.onecore.files.StupidFileHack
 import cc.woverflow.onecore.utils.Updater.addToUpdater
 import cc.woverflow.onecore.utils.gui.ConfirmationGui
-import gg.essential.api.utils.Multithreading
 import gg.essential.universal.UDesktop
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion
 import java.io.File
 import java.util.*
 
@@ -21,6 +22,7 @@ object Updater {
 
     private val modsToRemove: ArrayList<Mod> = arrayListOf()
 
+    //#if MODERN==0
     /**
      * Adds the mod specified. For forge mods, it is recommended to run this method during the [FMLPreInitializationEvent] event to easily access the file the mod is running on.
      * The repo of the mod will automatically be inferred as "W-OVERFLOW/ID_OF_MOD".
@@ -30,7 +32,15 @@ object Updater {
     fun addToUpdater(modFile: File, mod: Any) {
         if (mod.javaClass.isAnnotationPresent(net.minecraftforge.fml.common.Mod::class.java)) {
             val annotation = mod.javaClass.getDeclaredAnnotation(net.minecraftforge.fml.common.Mod::class.java)
-            mods.add(Mod(modFile, annotation.name, annotation.modid, annotation.version, "W-OVERFLOW/${annotation.modid}"))
+            mods.add(
+                Mod(
+                    modFile,
+                    annotation.name,
+                    annotation.modid,
+                    annotation.version,
+                    "W-OVERFLOW/${annotation.modid}"
+                )
+            )
         }
     }
 
@@ -47,6 +57,8 @@ object Updater {
         }
     }
 
+    //#endif
+
     /**
      * Adds the mod specified. For forge mods, it is recommended to run this method during the [FMLPreInitializationEvent] event to easily access the file the mod is running on.
      * @param modFile The file of the mod.
@@ -60,43 +72,43 @@ object Updater {
     }
 
     internal fun update() {
-        Multithreading.runAsync {
-            for (mod in mods) {
-                if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
-                    sendBrandedNotification(
-                        "OneCore",
-                        "${mod.name} ${mod.upstreamVersion?.version} is available!\nClick to open!",
-                        20f,
-                        action = {
-                            mod.handleUpdate()
-                        })
+        for (mod in mods) {
+            if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
+                sendBrandedNotification("OneCore",
+                    "${mod.name} ${mod.upstreamVersion?.version} is available!\nClick to open!",
+                    20f,
+                    action = {
+                        mod.handleUpdate()
+                    })
+            }
+        }
+        Runtime.getRuntime().addShutdownHook(Thread {
+            if (modsToRemove.isNotEmpty()) {
+                try {
+                    if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
+                        val sipStatus = Runtime.getRuntime().exec("csrutil status")
+                        sipStatus.waitFor()
+                        if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
+                                .contains("System Integrity Protection status: disabled.")) {
+                            UDesktop.open(modsToRemove.first().modFile.parentFile)
+                        }
+                    }
+                    val file = StupidFileHack.getFileFrom(OneCore.configFile, "Deleter-1.3.jar")
+                    if (UDesktop.isLinux) {
+                        Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
+                    } else if (UDesktop.isMac) {
+                        Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
+                    }
+                    Runtime.getRuntime().exec(
+                        "java -jar ${file.name} ${modsToRemove.joinToString(" ") { it.modFile.absolutePath }}",
+                        null,
+                        file.parentFile
+                    )
+                } catch (e: Throwable) {
+                    e.printStackTrace()
                 }
             }
-            Runtime.getRuntime().addShutdownHook(Thread {
-                if (modsToRemove.isNotEmpty()) {
-                    try {
-                        if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
-                            val sipStatus = Runtime.getRuntime().exec("csrutil status")
-                            sipStatus.waitFor()
-                            if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
-                                    .contains("System Integrity Protection status: disabled.")) {
-                                UDesktop.open(modsToRemove.first().modFile.parentFile)
-                            }
-                        }
-                        val file = File(OneCore.configFile, "Deleter-1.3.jar")
-                        if (UDesktop.isLinux) {
-                            Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
-                        } else if (UDesktop.isMac) {
-                            Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
-                        }
-                        Runtime.getRuntime()
-                            .exec("java -jar ${file.name} ${modsToRemove.joinToString(" ") {it.modFile.absolutePath}}", null, file.parentFile)
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
-                    }
-                }
-            })
-        }
+        })
     }
 
     /**
@@ -111,47 +123,47 @@ object Updater {
         var upstreamVersion: UpdateVersion? = null
 
         init {
-            Multithreading.runAsync {
-                val latestRelease = InternetUtils.getJsonElement("https://api.github.com/repos/${repo}/releases/latest")!!.asJsonObject
-                upstreamVersion = UpdateVersion(
-                    latestRelease["tag_name"].asString.substringAfter("v"),
-                    latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
-                )
-                if (UpdateVersion(version) < upstreamVersion!!) {
-                    isOutdated = true
-                }
+            val latestRelease =
+                APIUtil.getJsonElement("https://api.github.com/repos/${repo}/releases/latest")!!.asJsonObject
+            upstreamVersion = UpdateVersion(
+                latestRelease["tag_name"].asString.substringAfter("v"),
+                latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
+            )
+            if (UpdateVersion(version) < upstreamVersion!!) {
+                isOutdated = true
             }
         }
 
         fun handleUpdate() {
-            ConfirmationGui("OneCore", "Are you sure you want to update $name?", "(This will update from v$version to ${upstreamVersion?.version})", onConfirm = {
-
-                Multithreading.runAsync {
-                    if (InternetUtils.download(
-                            upstreamVersion!!.url!!, File(
-                                modFile.parentFile, "${name.replace(" ", "-")}-${
-                                    upstreamVersion?.version
-                                }.jar"
-                            )
-                        ) && InternetUtils.download(
-                            "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
-                            File(OneCore.configFile, "Deleter-1.3.jar")
-                        )
-                    ) {
-                        sendBrandedNotification(
-                            "OneCore",
-                            "The ingame updater has successfully installed the newest version of $name."
-                        )
-                        isOutdated = false
-                        modsToRemove.add(this@Mod)
-                    } else {
-                        sendBrandedNotification(
-                            "OneCore",
-                            "The ingame updater has NOT installed the newest version of $name as something went wrong."
-                        )
-                    }
-                }
-            }, onDeny = { restorePreviousScreen() }).openScreen()
+            ConfirmationGui(
+                "OneCore",
+                "Are you sure you want to update $name?",
+                "(This will update from v$version to ${upstreamVersion?.version})",
+                onConfirm = {
+                            launchCoroutine {
+                                if (APIUtil.download(
+                                        upstreamVersion!!.url!!, StupidFileHack.getFileFrom(modFile.parentFile, "${name.replace(" ", "-")}-${
+                                            upstreamVersion?.version
+                                        }.jar")
+                                    ) && APIUtil.download(
+                                        "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
+                                        StupidFileHack.getFileFrom(OneCore.configFile, "Deleter-1.3.jar")
+                                    )
+                                ) {
+                                    sendBrandedNotification(
+                                        "OneCore", "The ingame updater has successfully installed the newest version of $name."
+                                    )
+                                    isOutdated = false
+                                    modsToRemove.add(this@Mod)
+                                } else {
+                                    sendBrandedNotification(
+                                        "OneCore",
+                                        "The ingame updater has NOT installed the newest version of $name as something went wrong."
+                                    )
+                                }
+                            }
+                },
+                onDeny = { restorePreviousScreen() }).openScreen()
         }
 
         companion object {
@@ -168,7 +180,7 @@ object Updater {
 
             val isSafe = matched != null
 
-            private val versionArtifact = DefaultArtifactVersion(matched!!.groups["version"]!!.value)
+            val versionArtifact = Version.fromString(matched!!.groups["version"]!!.value) ?: throw NullPointerException()
             val specialVersionType = run {
                 val typeString = matched!!.groups["type"]?.value ?: return@run UpdateType.RELEASE
 
@@ -186,6 +198,55 @@ object Updater {
                         (specialVersion ?: 0.0).compareTo(other.specialVersion ?: 0.0)
                     } else other.specialVersionType.ordinal - specialVersionType.ordinal
                 } else versionArtifact.compareTo(other.versionArtifact)
+            }
+        }
+
+        class Version(
+            private val major: Int, private val minor: Int = 0, private val patch: Int = 0
+        ) {
+            operator fun compareTo(other: Version): Int {
+                var result = major - other.major
+                if (result == 0) {
+                    result = minor - other.minor
+                    if (result == 0) {
+                        result = patch - other.patch
+                    }
+                }
+
+                return result
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is Version) return false
+
+                return compareTo(other) == 0
+            }
+
+            override fun toString(): String = "$major.$minor.$patch"
+
+            override fun hashCode(): Int {
+                var result = major
+                result = 31 * result + minor
+                result = 31 * result + patch
+                return result
+            }
+
+            companion object {
+                val regex = Regex("(?<major>\\d+)(?:\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+)?)?)?")
+
+                fun fromString(version: String): Version? {
+                    val match = regex.find(version)
+                    return if (match != null) {
+                        Version(
+                            match.groups["major"]!!.value.toInt(),
+                            match.groups["minor"]?.value?.toInt() ?: 0,
+                            match.groups["patch"]?.value?.toInt() ?: 0
+                        )
+                    } else {
+                        null
+                    }
+                }
             }
         }
 

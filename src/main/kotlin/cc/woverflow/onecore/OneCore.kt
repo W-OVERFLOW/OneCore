@@ -1,14 +1,14 @@
 package cc.woverflow.onecore
 
 import cc.woverflow.onecore.config.OneCoreConfig
+import cc.woverflow.onecore.files.StupidFileHack
 import cc.woverflow.onecore.internal.Events
 import cc.woverflow.onecore.utils.*
 import cc.woverflow.onecore.websocket.Client
 import cc.woverflow.onecore.websocket.WebsocketUtils
-import gg.essential.api.utils.Multithreading
-import gg.essential.api.utils.WebUtil
+//#if MODERN==0
 import net.minecraft.launchwrapper.Launch
-import java.io.File
+//#endif
 
 
 object OneCore {
@@ -19,7 +19,8 @@ object OneCore {
     const val ID = "@ID@"
     const val VERSION = "@VER@"
 
-    val configFile = File(File(mc.mcDataDir, "W-OVERFLOW"), "OneCore")
+    val configFile = StupidFileHack.getFileFrom(StupidFileHack.getFileFrom(runDirectory,
+        "W-OVERFLOW"), "OneCore")
 
     fun init() {
         if (!init) {
@@ -34,15 +35,11 @@ object OneCore {
                 }
             }
             Events //initialize
-            Multithreading.runAsync {
-                UniqueUsersMetric.putApi()
-            }
             Updater.update()
-            Multithreading.runAsync {
-                val session = mc.session
-                val profile = session.profile
+            launchCoroutine {
+                UniqueUsersMetric.putApi()
 
-                val uuid = profile.id.toString().replace("-", "")
+                val uuid = playerID.toString().replace("-", "")
                 val serverHash = WebsocketUtils.hash(uuid + WebsocketUtils.nextSalt)
                 val status = WebsocketUtils.authenticate(
                     //#if MODERN==0
@@ -70,8 +67,8 @@ object OneCore {
         fun putApi() {
             try {
                 if (!isNotEligible()) {
-                    val url = "https://api.isxander.dev/metric/put/onecore?type=users&uuid=${mc.session.profile.id}"
-                    val response = WebUtil.fetchJsonElement(url).asJsonObject
+                    val url = "https://api.isxander.dev/metric/put/onecore?type=users&uuid=${playerID}"
+                    val response = APIUtil.getJsonElement(url)!!.asJsonObject
                     if (!response["success"].asBoolean) {
                         println("Metric API could not be called: ${response["error"].asString}")
                         return
@@ -82,11 +79,11 @@ object OneCore {
             }
         }
 
-        fun isNotEligible(): Boolean {
+        private fun isNotEligible(): Boolean {
             //#if MODERN==0
             return Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false) as Boolean
             //#else
-            //$$ return (mc as cc.woverflow.onecore.mixin.AccessorMinecraft).userApiService != UserApiService.OFFLINE
+            //$$ return (mc as cc.woverflow.onecore.mixin.MinecraftAccessor).userApiService != com.mojang.authlib.minecraft.UserApiService.OFFLINE
             //#endif
         }
     }

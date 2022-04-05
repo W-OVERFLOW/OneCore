@@ -2,15 +2,20 @@
 
 package cc.woverflow.onecore.utils
 
+//#if MODERN==0
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.Notifications
 import gg.essential.api.gui.Slot
+//#endif
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.pixels
-import gg.essential.universal.UMinecraft
-import gg.essential.universal.utils.MCMinecraft
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 //#if MODERN==1
 //$$ import gg.essential.universal.UChat
@@ -73,5 +78,49 @@ fun pushNotification(
     //#endif
 }
 
-val mc: MCMinecraft
-    get() = UMinecraft.getMinecraft()
+private var number = AtomicInteger(0)
+
+fun launchCoroutine(name: String = "OneCore Coroutine ${number.incrementAndGet()}", block: suspend CoroutineScope.() -> Unit) {
+    CoroutineScope(Dispatchers.IO + CoroutineName(name)).launch(block = block)
+}
+
+//#if MODERN==0
+val mc: net.minecraft.client.Minecraft
+    get() = net.minecraft.client.Minecraft.getMinecraft()
+//#else
+    //#if FABRIC==1
+    //$$ val mc: net.minecraft.client.MinecraftClient
+    //$$    get() = net.minecraft.client.MinecraftClient.getInstance()
+    //#else
+    //$$ val mc: net.minecraft.client.Minecraft
+    //$$    get() = net.minecraft.client.Minecraft.getInstance()
+    //#endif
+//#endif
+
+val session
+get() = mc.
+//#if MODERNFORGE==0
+session
+//#else
+//$$user
+//#endif
+
+val playerID
+get() = session.
+        //#if MODERN==0
+        playerID
+        //#else
+        //$$ uuid
+        //#endif
+
+val runDirectory
+get() = mc.
+    //#if MODERN==0
+    mcDataDir
+    //#else
+    //#if MODERNFORGE==1
+    //$$ gameDirectory
+    //#else
+    //$$ runDirectory
+    //#endif
+    //#endif

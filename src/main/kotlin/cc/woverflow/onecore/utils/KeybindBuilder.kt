@@ -4,17 +4,19 @@ package cc.woverflow.onecore.utils
 import net.minecraft.client.settings.KeyBinding
 import net.minecraftforge.fml.client.registry.ClientRegistry
 import org.lwjgl.input.Keyboard
-//#else
+//#endif
+//#if FABRIC==1
 //$$ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 //$$ import net.minecraft.client.option.KeyBinding
+//$$ import net.minecraft.client.util.InputUtil
 //#endif
 
-internal val keybinds = arrayListOf<KeybindBuilder>()
+private val keybinds = arrayListOf<KeybindBuilder>()
 
 class KeybindBuilder private constructor(name: String, category: String, defaultKey: Int, modern: Boolean, inputType: InputType?) : Builder {
 
-    //#if MODERN==1
-    //$$ constructor(name: String, category: String, defaultKey: Int, inputType: InputUtil.Type) : this(name, category, defaultKey, true, when (inputKey) {
+    //#if FABRIC==1
+    //$$ constructor(name: String, category: String, defaultKey: Int, inputType: InputUtil.Type) : this(name, category, defaultKey, true, when (inputType) {
     //$$ InputUtil.Type.KEYSYM -> InputType.KEYBOARD
     //$$ InputUtil.Type.MOUSE -> InputType.MOUSE
     //$$ InputUtil.Type.SCANCODE -> InputType.SCAN
@@ -28,17 +30,21 @@ class KeybindBuilder private constructor(name: String, category: String, default
     constructor(name: String, category: String, defaultKey: Int) : this(name, category, defaultKey, false, null)
 
 
-    internal val internalKeybind by lazy {
+    private val internalKeybind by lazy {
         if (modern && inputType == null) throw UnsupportedOperationException("constructor(name: String, category: String, defaultKey: Int) unsupported in 1.16+!")
         //#if MODERN==0
         KeyBinding(name, defaultKey, category)
         //#else
-        //$$ KeyBinding(name, when(inputType) {
-        //$$ InputType.KEYBOARD -> InputUtil.Type.KEYSYM
-        //$$ InputType.MOUSE -> InputUtil.Type.MOUSE
-        //$$ InputType.SCAN -> InputUtil.Type.SCANCODE
-        //$$ else -> InputUtil.Type.KEYSYM
-        //$$ }, defaultKey, category)
+            //#if FABRIC==1
+            //$$ KeyBinding(name, when(inputType) {
+            //$$ InputType.KEYBOARD -> InputUtil.Type.KEYSYM
+            //$$ InputType.MOUSE -> InputUtil.Type.MOUSE
+            //$$ InputType.SCAN -> InputUtil.Type.SCANCODE
+            //$$ else -> InputUtil.Type.KEYSYM
+            //$$ }, defaultKey, category)
+            //#else
+            //$$ if (true) throw RuntimeException("Keybinds are not supported in forge!")
+            //#endif
         //#endif
     }
 
@@ -49,27 +55,49 @@ class KeybindBuilder private constructor(name: String, category: String, default
 
     override fun build() {
         //#if MODERN==0
-        ClientRegistry.registerKeyBinding(
-        //#else
-        //$$ KeyBindingHelper.registerKeyBinding(
+        ClientRegistry.registerKeyBinding(internalKeybind)
         //#endif
-            internalKeybind)
+        //#if FABRIC==1
+        //$$ KeyBindingHelper.registerKeyBinding(internalKeybind)
+        //#endif
         keybinds.add(this)
     }
 
-    fun onKeyPress(
-        release: Boolean, repeat: Boolean
-    ) {
+    fun onKeyPress() {
         if (
             //#if MODERN==0
             internalKeybind.isKeyDown
             //#else
-            //$$ internalKeybind.isPressed
+                //#if FABRIC==1
+                //$$ internalKeybind.isPressed
+                //#else
+                //$$ false
+                //#endif
             //#endif
         ) {
-            if (repeat) {
+            if (
+                //#if MODERN==0
+                Keyboard.isRepeatEvent()
+                //#else
+                    //#if FABRIC==1
+                    //$$ internalKeybind.isPressed && !internalKeybind.wasPressed()
+                    //#else
+                    //$$ false
+                    //#endif
+                //#endif
+            ) {
                 onHold.invoke()
-            } else if (!release) {
+            } else if (!
+                //#if MODERN==0
+                Keyboard.getEventKeyState()
+                //#else
+                    //#if FABRIC==1
+                    //$$ internalKeybind.isPressed
+                    //#else
+                    //$$ false
+                    //#endif
+                //#endif
+            ) {
                 onRelease.invoke()
             } else {
                 onPress.invoke()
@@ -85,13 +113,6 @@ private enum class InputType {
 internal object KeybindHandler {
 
     fun onKeyboardInput() {
-        //#if MODERN==0
-        val release = Keyboard.getEventKeyState()
-        val repeat = Keyboard.isRepeatEvent()
-        //#else
-        //$$ val release = false
-        //$$ val repeat = internalKeybind.isPressed && !internalKeybind.wasPressed
-        //#endif
-        keybinds.forEach { it.onKeyPress(release, repeat) }
+        keybinds.forEach { it.onKeyPress() }
     }
 }

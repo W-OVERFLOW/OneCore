@@ -1,13 +1,21 @@
 package cc.woverflow.onecore.utils
 
 import gg.essential.universal.UChat
+//#if MODERN==0
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.BlockPos
+import net.minecraftforge.client.ClientCommandHandler
+//#else
+//$$ import com.mojang.brigadier.StringReader
+//$$ import com.mojang.brigadier.arguments.ArgumentType
+//#endif
 //#if MC==11202
 //$$ import net.minecraft.server.MinecraftServer
 //#endif
-import net.minecraftforge.client.ClientCommandHandler
+//#if FABRIC==1
+//$$ import net.axay.fabrik.commands.clientCommand
+//#endif
 import java.util.*
 
 class CommandBuilder @JvmOverloads internal constructor(
@@ -148,19 +156,6 @@ class CommandBuilder @JvmOverloads internal constructor(
                 return -1
             }
         })
-        //#else
-        //$$ clientCommand(this@CommandBuilder.name) {
-        //$$        runs {
-        //$$            mainCommand?.action?.invoke()
-        //$$        }
-        //$$        for (command in subCommands) {
-        //$$            argument<List<String>>("test", builder = ListArgumentType()) { thing: ->
-        //$$                runs {
-        //$$                    command.value.action.invoke(thing)
-        //$$                }
-        //$$            }
-        //$$        }
-        //$$ }
         //#endif
     }
 

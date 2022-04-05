@@ -5,7 +5,7 @@
   "refmap": "mixins.${id}.refmap.json",
   "plugin": "cc.woverflow.onecore.plugin.OneCorePlugin",
   "mixins": [
-
+    "MinecraftMixin"
   ],
   "verbose": true
 }
