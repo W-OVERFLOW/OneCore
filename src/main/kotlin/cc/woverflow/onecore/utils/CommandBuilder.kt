@@ -5,7 +5,7 @@ import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.BlockPos
 //#if MC==11202
-import net.minecraft.server.MinecraftServer
+//$$ import net.minecraft.server.MinecraftServer
 //#endif
 import net.minecraftforge.client.ClientCommandHandler
 import java.util.*

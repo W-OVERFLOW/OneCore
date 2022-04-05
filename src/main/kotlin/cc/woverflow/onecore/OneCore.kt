@@ -1,6 +1,7 @@
 package cc.woverflow.onecore
 
 import cc.woverflow.onecore.config.OneCoreConfig
+import cc.woverflow.onecore.internal.Events
 import cc.woverflow.onecore.utils.*
 import cc.woverflow.onecore.websocket.Client
 import cc.woverflow.onecore.websocket.WebsocketUtils
@@ -33,6 +34,7 @@ object OneCore {
                     OneCoreConfig.openScreen()
                 }
             }
+            Events //initialize
             Multithreading.runAsync {
                 UniqueUsersMetric.putApi()
             }

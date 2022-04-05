@@ -18,4 +18,10 @@ fun Vigilant.openScreen() = Multithreading.runAsync { gui()?.openScreen() }
  * Queue a new screen for opening.
  * @see GuiUtil.openScreen
  */
-fun MCScreen.openScreen() = EssentialAPI.getGuiUtil().openScreen(this)
+fun MCScreen.openScreen() {
+    //#if MODERN==0
+    EssentialAPI.getGuiUtil().openScreen(this)
+    //#else
+    //$$ tick(1) { UScreen.displayScreen(this) }
+    //#endif
+}

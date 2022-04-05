@@ -19,6 +19,8 @@ def mcVersionStr = "${(int) (mcVersion / 10000)}.${(int) (mcVersion / 100) % 100
 
 preprocess {
     vars.put("MC", mcVersion)
+    vars.put("MODERN", mcVersion >= 11600 ? 1 : 0)
+    vars.put("FABRIC", mcPlatform == "fabric")
 }
 
 version = mod_version
@@ -48,7 +50,9 @@ blossom {
 loom {
     launchConfigs {
         client {
-            arg("--tweakClass", "gg.essential.loader.stage0.EssentialSetupTweaker")
+            if (mcVersion < 11600) {
+                arg("--tweakClass", "gg.essential.loader.stage0.EssentialSetupTweaker")
+            }
             arg("--mixin", "mixins.onecore.json")
         }
     }
@@ -57,10 +61,12 @@ loom {
             ideConfigGenerated = true
         }
     }
-    forge {
-        pack200Provider = new Pack200Adapter()
-        mixinConfig("mixins.onecore.json")
-        mixin.defaultRefmapName.set("mixins.onecore.refmap.json")
+    if (mcPlatform == "forge") {
+        forge {
+            pack200Provider = new Pack200Adapter()
+            mixinConfig("mixins.onecore.json")
+            mixin.defaultRefmapName.set("mixins.onecore.refmap.json")
+        }
     }
 }
 
@@ -76,15 +82,41 @@ configurations {
 
 dependencies {
     minecraft("com.mojang:minecraft:$mcVersionStr")
-    mappings("de.oceanlabs.mcp:$mappingsVersion")
-    forge("net.minecraftforge:forge:$forgeVersion")
 
-    compileOnly "gg.essential:essential-${mcVersionStr}-forge:1933"
-    runtimeOnly ('gg.essential:loader-launchwrapper:1.1.3') {
-        transitive = false
+    if (mcPlatform == "forge") {
+        if (mcVersion < 11600) {
+            mappings("de.oceanlabs.mcp:$mappingsVersion")
+            compileOnly ("gg.essential:essential-${mcVersionStr}-forge:1933") {
+                exclude(module: "keventbus")
+            }
+            runtimeOnly ('gg.essential:loader-launchwrapper:1.1.3') {
+                transitive = false
+            }
+            runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.0.0")
+        }
+        forge("net.minecraftforge:forge:$forgeVersion")
+    } else {
+
+        modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
+        modImplementation "net.fabricmc.fabric-api:fabric-api:$fabricApiVersion"
+        modImplementation("net.fabricmc:fabric-language-kotlin:$fabricLanguageKotlinVersion")
+        modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
+
+        include("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}")
+        include("org.dom4j:dom4j:$dom4jVersion")
+
+        include("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}")
+        include("com.electronwill.night-config:core:$nightconfigVersion")
+        include("com.electronwill.night-config:toml:$nightconfigVersion")
+
+        include("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}")
     }
-    runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.0.0")
+    if (mcVersion >= 11600) {
+        mappings("net.fabricmc:yarn:$mappingsVersion:v2")
+    }
+    implementation("com.github.Wyvest:keventbus:e8e05ea")
     compileOnly("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+    include "org.apache.httpcomponents.client5:httpclient5:5.1.3"
     include 'org.java-websocket:Java-WebSocket:1.5.2'
 }
 
@@ -120,7 +152,9 @@ sourcesJar {
 
 sourceSets {
     main {
-        output.resourcesDir = java.classesDirectory
+        if (mcPlatform == "forge") {
+            output.resourcesDir = java.classesDirectory
+        }
     }
 }
 tasks.register('deobfShadowJar', ShadowJar).configure {

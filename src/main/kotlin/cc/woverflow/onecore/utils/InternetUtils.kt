@@ -2,6 +2,20 @@
 
 package cc.woverflow.onecore.utils
 
+//#if MODERN==1
+//$$ import gg.essential.universal.UChat
+//$$ import org.apache.hc.client5.http.classic.methods.HttpGet
+//$$ import org.apache.hc.client5.http.config.RequestConfig
+//$$ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
+//$$ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
+//$$ import org.apache.hc.client5.http.impl.classic.HttpClients
+//$$ import org.apache.hc.core5.http.io.entity.EntityUtils
+//$$ import org.apache.hc.core5.http.message.BasicHeader
+//$$ import org.apache.hc.core5.util.Timeout
+//$$ import org.apache.hc.client5.http.classic.methods.HttpGet
+//$$ import org.apache.hc.core5.http.HttpResponse
+//$$ import java.io.FileOutputStream
+//#endif
 import cc.woverflow.onecore.OneCore
 import com.google.gson.JsonElement
 import gg.essential.api.utils.WebUtil
@@ -9,6 +23,81 @@ import gg.essential.universal.UDesktop
 import java.io.File
 import java.io.IOException
 import java.net.URI
+
+/**
+ * Stolen from Skytils under AGPLv3
+ * https://github.com/Skytils/SkytilsMod/blob/1.x/LICENSE.md
+ */
+object InternetUtils {
+    //#if MODERN==1
+    //$$ private val builder: HttpClientBuilder =
+    //$$     HttpClients.custom().setUserAgent("OneCore/${OneCore.VERSION}")
+    //$$         .setConnectionManagerShared(true)
+    //$$         .setDefaultHeaders(
+    //$$              mutableListOf(
+    //$$                 BasicHeader("Pragma", "no-cache"),
+    //$$                 BasicHeader("Cache-Control", "no-cache")
+    //$$             )
+    //$$         )
+    //$$         .setDefaultRequestConfig(
+    //$$             RequestConfig.custom()
+    //$$                 .setConnectTimeout(Timeout.ofSeconds(30))
+    //$$                 .setResponseTimeout(Timeout.ofSeconds(30))
+    //$$                 .build()
+    //$$         )
+    //$$         .useSystemProperties()
+    //#endif
+
+    fun getString(url: String): String? {
+        //#if MODERN==0
+        return WebUtil.fetchString(url)
+        //#else
+        //$$ val client = builder.build()
+        //$$ try {
+        //$$     client.execute(HttpGet(url)).use { response ->
+        //$$         response.entity.use { entity ->
+        //$$            val obj = EntityUtils.toString(entity)
+        //$$            EntityUtils.consume(entity)
+        //$$            return obj
+        //$$        }
+        //$$     }
+        //$$ } catch (ex: Throwable) {
+        //$$     UChat.chat("§cOneCore ran into an ${ex::class.simpleName ?: "error"} whilst fetching a resource. See logs for more details.")
+        //$$     ex.printStackTrace()
+        //$$ } finally {
+        //$$     client.close()
+        //$$ }
+        //$$ return null
+        //#endif
+    }
+
+    fun download(url: String, file: File): Boolean {
+        //#if MODERN==0
+        return WebUtil.downloadToFileSafe(url, file)
+        //#else
+        //$$ val escapedUrl = url.replace(" ", "%20")
+        //$$ try {
+        //$$     FileOutputStream(file).use { fileOut ->
+        //$$         builder.build().execute(HttpGet(escapedUrl)).use { response ->
+        //$$             val buffer = ByteArray(1024)
+        //$$             var read: Int
+        //$$             while (response.entity.content.read(buffer).also { read = it } > 0) {
+        //$$                 fileOut.write(buffer, 0, read)
+        //$$             }
+        //$$         }
+        //$$     }
+        //$$ } catch (e: Exception) {
+        //$$     e.printStackTrace()
+        //$$     return false
+        //$$ }
+        //$$ return true
+        //#endif
+    }
+}
+
+fun InternetUtils.getJsonElement(url: String): JsonElement? = getString(url)?.asJsonElementSafe()?.getOrNull()
+
+//#if MODERN==0
 
 /**
  * Fetch a JSON object from the internet.
@@ -49,6 +138,8 @@ fun WebUtil.downloadToFileSafe(url: String, file: File, userAgent: String = "${O
 }
 
 fun WebUtil.downloadToFile(url: String, file: File) = downloadToFile(url, file, "${OneCore.NAME}/${OneCore.VERSION}, Minecraft/1.8.9 (+https://woverflow.cc)")
+
+//#endif
 
 /**
  * Open a website URL in the user's web browser.

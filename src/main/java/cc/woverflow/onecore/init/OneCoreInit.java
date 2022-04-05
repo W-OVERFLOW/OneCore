@@ -6,7 +6,13 @@ import org.spongepowered.asm.mixin.Mixins;
 @SuppressWarnings("unused")
 public class OneCoreInit {
     public static void initialize() {
-        if ("true".equals(System.getProperty("essential.loader.relaunched"))) {
+        if (
+                //#if MODERN==0
+                "true".equals(System.getProperty("essential.loader.relaunched"))
+                //#else
+                //$$ false
+                //#endif
+        ) {
             MixinBootstrap.init();
             Mixins.addConfiguration("mixins.onecore.json");
             String devMixin = System.getProperty("onecore.mixin");

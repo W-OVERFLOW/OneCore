@@ -4,9 +4,7 @@
   "package": "cc.woverflow.onecore.mixin",
   "refmap": "mixins.${id}.refmap.json",
   "mixins": [
-    "RedactionNameHighlightMixin",
-    "WyvtilsListenerMixin",
-    "MinecraftMixin"
+
   ],
   "verbose": true
 }

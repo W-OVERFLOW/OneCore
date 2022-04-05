@@ -3,13 +3,8 @@ package cc.woverflow.onecore.utils
 import cc.woverflow.onecore.OneCore
 import cc.woverflow.onecore.config.OneCoreConfig
 import cc.woverflow.onecore.utils.Updater.addToUpdater
-import gg.essential.api.EssentialAPI
-import gg.essential.api.gui.buildConfirmationModal
+import cc.woverflow.onecore.utils.gui.ConfirmationGui
 import gg.essential.api.utils.Multithreading
-import gg.essential.api.utils.WebUtil
-import gg.essential.elementa.ElementaVersion
-import gg.essential.elementa.WindowScreen
-import gg.essential.elementa.dsl.childOf
 import gg.essential.universal.UDesktop
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion
@@ -117,7 +112,7 @@ object Updater {
 
         init {
             Multithreading.runAsync {
-                val latestRelease = WebUtil.fetchJsonElement("https://api.github.com/repos/${repo}/releases/latest").asJsonObject
+                val latestRelease = InternetUtils.getJsonElement("https://api.github.com/repos/${repo}/releases/latest")!!.asJsonObject
                 upstreamVersion = UpdateVersion(
                     latestRelease["tag_name"].asString.substringAfter("v"),
                     latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
@@ -129,49 +124,34 @@ object Updater {
         }
 
         fun handleUpdate() {
-            EssentialAPI.getGuiUtil()
-                .openScreen(object : WindowScreen(restoreCurrentGuiOnClose = true, version = ElementaVersion.V1) {
+            ConfirmationGui("OneCore", "Are you sure you want to update $name?", "(This will update from v$version to ${upstreamVersion?.version})", onConfirm = {
 
-
-                    override fun initScreen(width: Int, height: Int) {
-                        super.initScreen(width, height)
-                        EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
-                            this.text = "Are you sure you want to update $name?"
-                            this.secondaryText = "(This will update from v$version to ${upstreamVersion?.version})"
-                            this.onConfirm = {
-                                restorePreviousScreen()
-                                Multithreading.runAsync {
-                                    if (WebUtil.downloadToFileSafe(
-                                            upstreamVersion!!.url!!, File(
-                                                modFile.parentFile, "${name.replace(" ", "-")}-${
-                                                    upstreamVersion?.version
-                                                }.jar"
-                                            )
-                                        ) && WebUtil.downloadToFileSafe(
-                                            "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
-                                            File(OneCore.configFile, "Deleter-1.3.jar")
-                                        )
-                                    ) {
-                                        sendBrandedNotification(
-                                            "OneCore",
-                                            "The ingame updater has successfully installed the newest version of $name."
-                                        )
-                                        isOutdated = false
-                                        modsToRemove.add(this@Mod)
-                                    } else {
-                                        sendBrandedNotification(
-                                            "OneCore",
-                                            "The ingame updater has NOT installed the newest version of $name as something went wrong."
-                                        )
-                                    }
-                                }
-                            }
-                            this.onDeny = {
-                                restorePreviousScreen()
-                            }
-                        } childOf this.window
+                Multithreading.runAsync {
+                    if (InternetUtils.download(
+                            upstreamVersion!!.url!!, File(
+                                modFile.parentFile, "${name.replace(" ", "-")}-${
+                                    upstreamVersion?.version
+                                }.jar"
+                            )
+                        ) && InternetUtils.download(
+                            "https://github.com/W-OVERFLOW/Deleter/releases/download/v1.3/Deleter-1.3.jar",
+                            File(OneCore.configFile, "Deleter-1.3.jar")
+                        )
+                    ) {
+                        sendBrandedNotification(
+                            "OneCore",
+                            "The ingame updater has successfully installed the newest version of $name."
+                        )
+                        isOutdated = false
+                        modsToRemove.add(this@Mod)
+                    } else {
+                        sendBrandedNotification(
+                            "OneCore",
+                            "The ingame updater has NOT installed the newest version of $name as something went wrong."
+                        )
                     }
-                })
+                }
+            }, onDeny = { restorePreviousScreen() }).openScreen()
         }
 
         companion object {
