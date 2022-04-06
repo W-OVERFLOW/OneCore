@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.mixin;
+package cc.woverflow.onecore.internal.mixin;
 
 import cc.woverflow.onecore.utils.RenderUtils;
 import org.spongepowered.asm.mixin.Dynamic;

@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.mixin;
+package cc.woverflow.onecore.internal.mixin;
 
 import cc.woverflow.onecore.utils.RenderUtils;
 import org.spongepowered.asm.mixin.Dynamic;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class RedactionNameHighlightMixin {
 
     @Dynamic("REDACTION")
-    @Inject(method = "highlightName", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "highlightName", at = @At("HEAD"), cancellable = true, remap = false)
     private static void onNameHighlight(String text, CallbackInfoReturnable<String> cir) {
         if (RenderUtils.getBypassNameHighlight()) {
             cir.setReturnValue(text);

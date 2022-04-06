@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.mixin;
+package cc.woverflow.onecore.internal.mixin;
 //#if MODERN==0
 
 import cc.woverflow.onecore.OneCore;

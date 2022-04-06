@@ -25,6 +25,8 @@ rootProject.buildFileName = "root.gradle.kts"
 listOf(
     "1.8.9",
     "1.12.2",
+    "1.17.1-fabric",
+    "1.17.1-forge",
     "1.18.1-forge",
     "1.18.1-fabric"
 ).forEach { version ->

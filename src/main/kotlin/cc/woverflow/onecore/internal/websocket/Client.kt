@@ -1,9 +1,9 @@
-package cc.woverflow.onecore.websocket
+package cc.woverflow.onecore.internal.websocket
 
+import cc.woverflow.onecore.internal.websocket.packets.*
 import cc.woverflow.onecore.utils.asJsonElement
 import cc.woverflow.onecore.utils.launchCoroutine
 import cc.woverflow.onecore.utils.session
-import cc.woverflow.onecore.websocket.packets.*
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
@@ -35,14 +35,16 @@ object Client : WebSocketClient(URI.create("ws://localhost:8887")) {
 
     override fun onOpen(handshakedata: ServerHandshake) {
         logger.info("Websocket opened | Code: ${handshakedata.httpStatus} | Message: ${handshakedata.httpStatusMessage}")
-        send(GreetingPacket(
+        send(
+            GreetingPacket(
             session.
             //#if MODERN==0
             playerID
             //#else
             //$$ uuid
             //#endif
-        ))
+        )
+        )
     }
 
     override fun onMessage(message: String?) {

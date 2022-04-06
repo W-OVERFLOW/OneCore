@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.websocket.packets
+package cc.woverflow.onecore.internal.websocket.packets
 
 enum class UserType {
     USER,

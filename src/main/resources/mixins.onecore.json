@@ -1,9 +1,9 @@
 {
   "compatibilityLevel": "${java_level}",
   "minVersion": "0.7",
-  "package": "cc.woverflow.onecore.mixin",
+  "package": "cc.woverflow.onecore.internal.mixin",
   "refmap": "mixins.${id}.refmap.json",
-  "plugin": "cc.woverflow.onecore.plugin.OneCorePlugin",
+  "plugin": "cc.woverflow.onecore.internal.plugin.OneCorePlugin",
   "mixins": [
     "MinecraftMixin"
   ],

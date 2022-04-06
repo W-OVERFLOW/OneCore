@@ -1,5 +1,5 @@
-//#if MODERN==1
-//$$ package cc.woverflow.onecore.mixin;
+//#if MC>=11800
+//$$ package cc.woverflow.onecore.internal.mixin;
 
 //$$ import com.mojang.authlib.minecraft.UserApiService;
 //$$ import org.spongepowered.asm.mixin.Mixin;

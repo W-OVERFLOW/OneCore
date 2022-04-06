@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.plugin
+package cc.woverflow.onecore.internal.plugin
 
 import org.objectweb.asm.tree.ClassNode
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin
@@ -24,7 +24,7 @@ class OneCorePlugin : IMixinConfigPlugin {
     @Suppress("UnnecessaryVariable")
     override fun getMixins(): MutableList<String> {
         val array = arrayListOf("")
-        //#if MODERN==1
+        //#if MC>=11800
         //$$ array.add("MinecraftAccessor")
         //#endif
         return array

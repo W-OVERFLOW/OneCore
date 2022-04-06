@@ -1,4 +1,4 @@
-package cc.woverflow.onecore.websocket
+package cc.woverflow.onecore.internal.websocket
 
 import com.google.gson.JsonObject
 import org.apache.http.HttpStatus
