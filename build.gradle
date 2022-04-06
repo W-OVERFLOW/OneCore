@@ -74,7 +74,6 @@ loom {
 
 repositories {
     maven { url 'https://repo.woverflow.cc/' }
-    maven { url "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 }
 
 configurations {
