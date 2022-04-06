@@ -5,6 +5,7 @@ pluginManagement {
         mavenCentral()
         google()
         maven("https://repo.woverflow.cc/")
+        maven("https://repo.essential.gg/repository/maven-public")
         flatDir {
             dirs=setOf(file("../../libs"))
         }

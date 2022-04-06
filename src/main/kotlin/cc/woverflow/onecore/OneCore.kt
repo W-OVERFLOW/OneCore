@@ -36,6 +36,7 @@ object OneCore {
             }
             Events //initialize
             Updater.update()
+            /*/
             launchCoroutine {
                 val uuid = playerID.toString().replace("-", "")
                 val serverHash = WebsocketUtils.hash(uuid + WebsocketUtils.nextSalt)
@@ -59,6 +60,8 @@ object OneCore {
                     })
                 }
             }
+
+             */
         }
     }
 

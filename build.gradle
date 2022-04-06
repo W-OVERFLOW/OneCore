@@ -26,7 +26,7 @@ preprocess {
 
 version = mod_version
 group = "cc.woverflow"
-archivesBaseName = mod_name.toLowerCase(Locale.ENGLISH)
+archivesBaseName = "${mod_name.toLowerCase(Locale.ENGLISH)}-${mcVersionStr}-${mcPlatform}"
 
 kotlin.jvmToolchain {
     languageVersion = JavaLanguageVersion.of(mcVersion > 11800 ? 17 : mcVersion >= 11700 ? 16 : 8)
@@ -44,7 +44,7 @@ java {
 
 blossom {
     def className = "src/main/kotlin/cc/woverflow/onecore/OneCore.kt"
-    replaceToken("@VER@", project.version, className)
+    replaceToken("@VER@", mod_version, className)
     replaceToken("@NAME@", mod_name, className)
     replaceToken("@ID@", mod_id, className)
 }
