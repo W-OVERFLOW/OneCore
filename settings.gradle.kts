@@ -1,10 +1,7 @@
 pluginManagement {
     repositories {
-        mavenLocal()
-        gradlePluginPortal()
-        mavenCentral()
-        google()
         maven("https://repo.woverflow.cc/")
+        // adding essential repo until i finish mirroing it
         maven("https://repo.essential.gg/repository/maven-public")
         flatDir {
             dirs=setOf(file("../../libs"))

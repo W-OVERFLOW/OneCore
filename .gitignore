@@ -29,3 +29,7 @@ run
 Thumbs.db
 .vscode
 versions/*/api/
+
+# ethan
+src/main/kotlin/cc/woverflow/onecore/internal/ethan/EthanShenanigans.kt
+src/main/kotlin/cc/woverflow/onecore/internal/ethan/InitShenanigans.kt

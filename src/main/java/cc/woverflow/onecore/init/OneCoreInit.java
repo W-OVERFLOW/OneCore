@@ -5,6 +5,9 @@ import org.spongepowered.asm.mixin.Mixins;
 
 @SuppressWarnings("unused")
 public class OneCoreInit {
+    /**
+     * Starts the main OneCore process and initalizes mixins.
+     */
     public static void initialize() {
         if (
                 //#if MODERN==0
@@ -20,6 +23,7 @@ public class OneCoreInit {
                 Mixins.addConfiguration(System.getProperty("onecore.mixin"));
             }
         }
+        System.setProperty("onecore.loader.init", "true");
         System.out.println("OneCore has been initialized :D");
     }
 }

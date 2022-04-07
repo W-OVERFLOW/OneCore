@@ -15,6 +15,9 @@ import net.minecraftforge.client.ClientCommandHandler
 //#endif
 import java.util.*
 
+/**
+ * Used to build new commands.
+ */
 class CommandBuilder @JvmOverloads internal constructor(
     private val name: String,
     private val aliases: ArrayList<String> = arrayListOf(),

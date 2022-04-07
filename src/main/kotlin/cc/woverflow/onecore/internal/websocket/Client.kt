@@ -16,7 +16,9 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
-
+/**
+ * The Websocket client object used in OneCore
+ */
 object Client : WebSocketClient(URI.create("ws://localhost:8887")) {
     var userType: UserType? = null
     private set

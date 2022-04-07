@@ -4,6 +4,9 @@ import org.objectweb.asm.tree.ClassNode
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo
 
+/**
+ * Mixin Config Plugin used for internal development.
+ */
 class OneCorePlugin : IMixinConfigPlugin {
     override fun onLoad(mixinPackage: String?) {
 

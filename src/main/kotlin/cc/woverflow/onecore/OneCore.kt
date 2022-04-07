@@ -10,7 +10,10 @@ import cc.woverflow.onecore.internal.websocket.WebsocketUtils
 import net.minecraft.launchwrapper.Launch
 //#endif
 
-
+/**
+ * The main OneCore object.
+ * You shouldn't need to call this if you use the tweaker or fabric.
+ */
 object OneCore {
 
     private var init = false
