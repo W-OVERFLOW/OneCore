@@ -1,4 +1,6 @@
-package cc.woverflow.onecore.internal
+@file:Suppress("RedundantEmptyInitializerBlock")
+
+package cc.woverflow.onecore.events
 
 import gg.essential.lib.kbrewster.eventbus.eventbus
 import gg.essential.lib.kbrewster.eventbus.invokers.LMFInvoker

@@ -13,10 +13,13 @@ import org.lwjgl.input.Keyboard
 
 private val keybinds = arrayListOf<KeybindBuilder>()
 
-class KeybindBuilder private constructor(name: String, category: String, defaultKey: Int, modern: Boolean, inputType: InputType?) : Builder {
+/**
+ * Allows for the quick creation of keybinds.
+ */
+class KeybindBuilder constructor(name: String, category: String, defaultKey: Int, inputType: InputType?) : Builder {
 
     //#if FABRIC==1
-    //$$ constructor(name: String, category: String, defaultKey: Int, inputType: InputUtil.Type) : this(name, category, defaultKey, true, when (inputType) {
+    //$$ constructor(name: String, category: String, defaultKey: Int, inputType: InputUtil.Type) : this(name, category, defaultKey, when (inputType) {
     //$$ InputUtil.Type.KEYSYM -> InputType.KEYBOARD
     //$$ InputUtil.Type.MOUSE -> InputType.MOUSE
     //$$ InputUtil.Type.SCANCODE -> InputType.SCAN
@@ -24,14 +27,14 @@ class KeybindBuilder private constructor(name: String, category: String, default
     //$$ })
     //#endif
 
-    //#if MODERN==1
-    //$$ @Deprecated("Will not work on 1.16+")
-    //#endif
-    constructor(name: String, category: String, defaultKey: Int) : this(name, category, defaultKey, false, null)
+    @Deprecated("Will not work on 1.16+")
+    constructor(name: String, category: String, defaultKey: Int) : this(name, category, defaultKey, null)
 
 
     private val internalKeybind by lazy {
-        if (modern && inputType == null) throw UnsupportedOperationException("constructor(name: String, category: String, defaultKey: Int) unsupported in 1.16+!")
+        //#if MODERN==1
+        if (inputType == null) throw UnsupportedOperationException("constructor(name: String, category: String, defaultKey: Int) unsupported in 1.16+!")
+        //#endif
         //#if MODERN==0
         KeyBinding(name, defaultKey, category)
         //#else
@@ -63,7 +66,7 @@ class KeybindBuilder private constructor(name: String, category: String, default
         keybinds.add(this)
     }
 
-    fun onKeyPress() {
+    internal fun onKeyPress() {
         if (
             //#if MODERN==0
             internalKeybind.isKeyDown
@@ -106,7 +109,7 @@ class KeybindBuilder private constructor(name: String, category: String, default
     }
 }
 
-private enum class InputType {
+enum class InputType {
     KEYBOARD, MOUSE, SCAN // i have no idea what a scan input is but that's there anyways
 }
 

@@ -2,8 +2,8 @@ package cc.woverflow.onecore.internal.mixin;
 //#if MODERN==0
 
 import cc.woverflow.onecore.OneCore;
-import cc.woverflow.onecore.internal.EventsKt;
-import cc.woverflow.onecore.internal.TickEvent;
+import cc.woverflow.onecore.events.EventsKt;
+import cc.woverflow.onecore.events.TickEvent;
 import cc.woverflow.onecore.utils.KeybindHandler;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;

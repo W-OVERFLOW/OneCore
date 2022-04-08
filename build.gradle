@@ -67,9 +67,9 @@ loom {
         forge {
             pack200Provider = new Pack200Adapter()
             mixinConfig("mixins.onecore.json")
-            mixin.defaultRefmapName.set("mixins.onecore.refmap.json")
         }
     }
+    mixin.defaultRefmapName.set("mixins.onecore.refmap.json")
 }
 
 repositories {
@@ -105,14 +105,14 @@ dependencies {
             include(("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.3.2"))
             include(("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.3.2"))
             include(("org.jetbrains.kotlinx:kotlinx-serialization-cbor-jvm:1.3.2"))
-            include(modApi("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
+            include(modImplementation("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
             include("org.dom4j:dom4j:$dom4jVersion")
 
-            include(modApi("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
+            include(modImplementation("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
             include("com.electronwill.night-config:core:$nightconfigVersion")
             include("com.electronwill.night-config:toml:$nightconfigVersion")
 
-            include(modApi("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
+            include(modImplementation("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
             mappings(loom.officialMojangMappings())
         }
         forge("net.minecraftforge:forge:$forgeVersion")
@@ -123,14 +123,14 @@ dependencies {
         modImplementation("net.fabricmc:fabric-language-kotlin:$fabricLanguageKotlinVersion")
         modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
 
-        include(modApi("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
+        include(modImplementation("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
         include("org.dom4j:dom4j:$dom4jVersion")
 
-        include(modApi("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
+        include(modImplementation("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
         include("com.electronwill.night-config:core:$nightconfigVersion")
         include("com.electronwill.night-config:toml:$nightconfigVersion")
 
-        include(modApi("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
+        include(modImplementation("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
     }
 
     include("com.github.Wyvest:keventbus:e8e05ea")
@@ -164,13 +164,16 @@ processResources {
         expand(
                 "version": mod_version,
                 "java": java,
-                "mcversion": mcVersionStr
+                "mcversion": mcVersionStr.substring(0, mcVersionStr.length() - 1) + "x" //if minecraft decides to have another 2 digit patch number we need to replace this with something better
         )
     }
 }
 
 remapJar {
     archiveClassifier = "nodeps"
+    if (mcPlatform == "forge") {
+        exclude("fabric.mod.json", "**/module-info.class")
+    }
 }
 
 jar {
@@ -181,6 +184,9 @@ jar {
             "MixinConfigs": "mixins.onecore.json",
             'ForceLoadAsMod': true
     )
+    if (mcPlatform == "forge") {
+        exclude("fabric.mod.json", "**/module-info.class") //todo: fix this, for some reason it doesnt actually exclude it
+    }
 }
 
 sourcesJar {
@@ -188,8 +194,6 @@ sourcesJar {
     exclude("cc/woverflow/onecore/OneCore.**")
     exclude("mixins.onecore.json")
     exclude("fabric.mod.json")
-    exclude("pack.mcmeta")
-    exclude("mods.toml")
 }
 
 sourceSets {
@@ -204,6 +208,9 @@ tasks.register('deobfShadowJar', ShadowJar).configure {
     from(jar.archiveFile)
     configurations = [project.configurations.include]
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    if (mcPlatform == "forge") {
+        exclude("fabric.mod.json", "**/module-info.class")
+    }
 }
 remapJar.dependsOn deobfShadowJar
 shadowJar {
@@ -211,5 +218,8 @@ shadowJar {
     from(remapJar.archiveFile)
     configurations = [project.configurations.include]
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    if (mcPlatform == "forge") {
+        exclude("fabric.mod.json", "**/module-info.class")
+    }
 }
 assemble.dependsOn shadowJar

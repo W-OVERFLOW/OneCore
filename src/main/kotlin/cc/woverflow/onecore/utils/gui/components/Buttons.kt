@@ -45,6 +45,7 @@ class TextButton<T>(
     focusedColor: ColorConstraint,
     providedValue: () -> T,
     enabled: T.() -> Boolean = { true },
+    width: Int,
     onClick: T.() -> Unit
 ) : Button<T>(unfocusedColor, focusedColor, providedValue, enabled, onClick) {
 
@@ -55,7 +56,7 @@ class TextButton<T>(
 
     init {
         constrain {
-            width = ChildBasedSizeConstraint() + 10.pixels()
+            this@constrain.width = width.pixels()
             height = ChildBasedSizeConstraint() + 10.pixels()
         }
     }

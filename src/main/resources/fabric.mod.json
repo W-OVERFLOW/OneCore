@@ -23,7 +23,7 @@
     "fabricloader": ">=0.12.0",
     "fabric-api-base": "*",
     "fabric-key-binding-api-v1": "*",
-    "minecraft": ">=${mcversion}",
+    "minecraft": "${mcversion}",
     "java": ">=${java}"
   },
   "custom": {

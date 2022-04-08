@@ -3,11 +3,14 @@ package cc.woverflow.onecore.init;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.Mixins;
 
+/**
+ * Starts the main OneCore process and initializes mixins.
+ * <p> This should never be called manually (and at all for modern versions)
+ * and should instead be called by adding the OneCore tweaker.
+ */
 @SuppressWarnings("unused")
 public class OneCoreInit {
-    /**
-     * Starts the main OneCore process and initalizes mixins.
-     */
+
     public static void initialize() {
         if (
                 //#if MODERN==0

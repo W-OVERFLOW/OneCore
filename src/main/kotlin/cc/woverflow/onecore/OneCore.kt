@@ -2,18 +2,12 @@ package cc.woverflow.onecore
 
 import cc.woverflow.onecore.config.OneCoreConfig
 import cc.woverflow.onecore.files.StupidFileHack
-import cc.woverflow.onecore.internal.Events
-import cc.woverflow.onecore.internal.websocket.Client
+import cc.woverflow.onecore.events.Events
 import cc.woverflow.onecore.utils.*
-import cc.woverflow.onecore.internal.websocket.WebsocketUtils
 //#if MODERN==0
 import net.minecraft.launchwrapper.Launch
 //#endif
 
-/**
- * The main OneCore object.
- * You shouldn't need to call this if you use the tweaker or fabric.
- */
 object OneCore {
 
     private var init = false

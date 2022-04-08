@@ -8,7 +8,10 @@ import cc.woverflow.onecore.config.OneCoreConfig
 import cc.woverflow.onecore.files.StupidFileHack
 import cc.woverflow.onecore.utils.Updater.addToUpdater
 import cc.woverflow.onecore.utils.gui.ConfirmationGui
+import gg.essential.universal.ChatColor
 import gg.essential.universal.UDesktop
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.*
 
@@ -72,43 +75,64 @@ object Updater {
     }
 
     internal fun update() {
-        for (mod in mods) {
-            if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
-                sendBrandedNotification("OneCore",
-                    "${mod.name} ${mod.upstreamVersion?.version} is available!\nClick to open!",
-                    20f,
-                    action = {
-                        mod.handleUpdate()
-                    })
-            }
-        }
-        Runtime.getRuntime().addShutdownHook(Thread {
-            if (modsToRemove.isNotEmpty()) {
-                try {
-                    if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
-                        val sipStatus = Runtime.getRuntime().exec("csrutil status")
-                        sipStatus.waitFor()
-                        if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
-                                .contains("System Integrity Protection status: disabled.")) {
-                            UDesktop.open(modsToRemove.first().modFile.parentFile)
-                        }
-                    }
-                    val file = StupidFileHack.getFileFrom(OneCore.configFile, "Deleter-1.3.jar")
-                    if (UDesktop.isLinux) {
-                        Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
-                    } else if (UDesktop.isMac) {
-                        Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
-                    }
-                    Runtime.getRuntime().exec(
-                        "java -jar ${file.name} ${modsToRemove.joinToString(" ") { it.modFile.absolutePath }}",
-                        null,
-                        file.parentFile
-                    )
-                } catch (e: Throwable) {
-                    e.printStackTrace()
+        launchCoroutine {
+            @Suppress("SimplifyBooleanWithConstants")
+            while (
+                //#if MODERN==0
+                false
+                //#else
+                    //#if FABRIC==1
+                    //$$ net.minecraft.client.MinecraftClient.getInstance().world == null
+                    //#else
+                    //$$ net.minecraft.client.Minecraft.getInstance().level == null
+                    //#endif
+                //#endif
+            ) { withContext(Dispatchers.IO) {
+                Thread.sleep(2000)
+            } }
+            while (!mods.all { it.finishedProcessing }) {
+                withContext(Dispatchers.IO) {
+                    Thread.sleep(2000)
                 }
             }
-        })
+            for (mod in mods) {
+                if (mod.isOutdated && OneCoreConfig.showUpdateNotifications) {
+                    sendBrandedNotification("OneCore",
+                        "${mod.name} ${mod.upstreamVersion?.version} is available!\nClick to open!",
+                        20f,
+                        action = {
+                            mod.handleUpdate()
+                        })
+                }
+            }
+            Runtime.getRuntime().addShutdownHook(Thread {
+                if (modsToRemove.isNotEmpty()) {
+                    try {
+                        if (System.getProperty("os.name").lowercase(Locale.ENGLISH).contains("mac")) {
+                            val sipStatus = Runtime.getRuntime().exec("csrutil status")
+                            sipStatus.waitFor()
+                            if (!sipStatus.inputStream.use { it.bufferedReader().readText() }
+                                    .contains("System Integrity Protection status: disabled.")) {
+                                UDesktop.open(modsToRemove.first().modFile.parentFile)
+                            }
+                        }
+                        val file = StupidFileHack.getFileFrom(OneCore.configFile, "Deleter-1.3.jar")
+                        if (UDesktop.isLinux) {
+                            Runtime.getRuntime().exec("chmod +x \"${file.absolutePath}\"")
+                        } else if (UDesktop.isMac) {
+                            Runtime.getRuntime().exec("chmod 755 \"${file.absolutePath}\"")
+                        }
+                        Runtime.getRuntime().exec(
+                            "java -jar ${file.name} ${modsToRemove.joinToString(" ") { it.modFile.absolutePath }}",
+                            null,
+                            file.parentFile
+                        )
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                    }
+                }
+            })
+        }
     }
 
     /**
@@ -120,26 +144,37 @@ object Updater {
         var isOutdated = false
             private set
 
+        var finishedProcessing = false
+
         var upstreamVersion: UpdateVersion? = null
 
         init {
-            val latestRelease =
-                APIUtil.getJsonElement("https://api.github.com/repos/${repo}/releases/latest")!!.asJsonObject
-            upstreamVersion = UpdateVersion(
-                latestRelease["tag_name"].asString.substringAfter("v"),
-                latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
-            )
-            if (UpdateVersion(version) < upstreamVersion!!) {
-                isOutdated = true
+            try {
+                launchCoroutine {
+                    APIUtil.getJsonElement("https://api.github.com/repos/${repo}/releases/latest")?.asJsonObject?.let { latestRelease ->
+                        upstreamVersion = UpdateVersion(
+                            latestRelease["tag_name"].asString.substringAfter("v"),
+                            latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
+                        )
+                        if (UpdateVersion(version) < upstreamVersion!!) {
+                            isOutdated = true
+                        }
+                    }
+                    finishedProcessing = true
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                finishedProcessing = true
             }
         }
 
         fun handleUpdate() {
             ConfirmationGui(
-                "OneCore",
-                "Are you sure you want to update $name?",
-                "(This will update from v$version to ${upstreamVersion?.version})",
+                "${ChatColor.AQUA}OneCore",
+                "${ChatColor.RED}Are you sure you want to update $name?",
+                "${ChatColor.YELLOW}(This will update from v$version to ${upstreamVersion?.version})",
                 onConfirm = {
+                    restorePreviousScreen()
                             launchCoroutine {
                                 if (APIUtil.download(
                                         upstreamVersion!!.url!!, StupidFileHack.getFileFrom(modFile.parentFile, "${name.replace(" ", "-")}-${

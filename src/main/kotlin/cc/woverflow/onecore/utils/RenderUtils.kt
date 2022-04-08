@@ -5,11 +5,20 @@ package cc.woverflow.onecore.utils
 import gg.essential.universal.UGraphics
 import gg.essential.universal.UMatrixStack
 import gg.essential.universal.utils.MCFontRenderer
+//#if FABRIC==1
+//$$ import net.minecraft.client.util.math.MatrixStack
+//#endif
 
 private val regex = Regex("(?i)\\u00A7[0-9a-f]")
 
 /**
  * Draws a string with a border shadow effect.
+ * @param matrix The [UMatrixStack] to perform GL transformations on
+ * @param text The text to render
+ * @param x The X to start rendering on
+ * @param y The Y to start rendering on
+ * @param color The color of the text
+ * @param opacity The opacity of the border
  */
 fun MCFontRenderer.drawBorderedString(
     matrix: UMatrixStack?, text: String, x: Int, y: Int, color: Int, opacity: Int
@@ -48,15 +57,58 @@ fun MCFontRenderer.drawBorderedString(
     return yes
 }
 
+/**
+ * Draws a string with a border shadow effect.
+ * @see drawBorderedString
+ */
+@Deprecated("Will not work in 1.17+.", ReplaceWith("drawBorderedString(UMatrixStack.Compat.get(), text, x, y, color, opacity)", imports = arrayOf("gg.essential.universal.UMatrixStack")))
+fun MCFontRenderer.drawBorderedString(
+    text: String, x: Int, y: Int, color: Int, opacity: Int
+): Int = drawBorderedString(null, text, x, y, color, opacity)
+
+/**
+ * Pushes a new matrix from the provided [UMatrixStack] and runs the lambda provided.
+ *
+ * @param block The code to run
+ */
 inline infix fun <R> UMatrixStack.newMatrix(block: UMatrixStack.() -> R) {
     push()
     block()
     pop()
 }
 
+/**
+ * Pushes a new matrix from the compat UMatrixStack provided in [UMatrixStack.Compat]
+ * and runs the lambda provided.
+ *
+ * @param block The code to run
+ * @see UMatrixStack.Compat
+ * @see newMatrix
+ */
 inline fun <R> newMatrixCompat(block: UMatrixStack.() -> R) = UMatrixStack.Compat.get().newMatrix(block)
 
+/**
+ * Pushes a new matrix from a newly created [UMatrixStack]
+ * and runs the lambda provided.
+ *
+ * @param block The code to run
+ * @see UMatrixStack.Compat
+ * @see newMatrix
+ */
 inline fun <R> newMatrix(block: UMatrixStack.() -> R) = UMatrixStack().newMatrix(block)
+
+//#if FABRIC==1
+//$$ /**
+//$$  * Pushes a new matrix from the provided [MatrixStack]
+//$$  * and runs the lambda provided.
+//$$  *
+//$$  * @param block The code to run
+//$$  * @see MatrixStack
+//$$  * @see UMatrixStack
+//$$  * @see newMatrix
+//$$  */
+//$$ inline fun <R> newMatrix(mcStack: MatrixStack, block: UMatrixStack.() -> R) = UMatrixStack(mcStack).newMatrix(block)
+//#endif
 
 inline fun <R> UMatrixStack.withColor(rgba: Int, block: UMatrixStack.() -> R) = this newMatrix {
     UGraphics.color4f(
@@ -100,14 +152,14 @@ inline fun <R> withRotation(angle: Float, x: Float, y: Float, z: Float, block: U
 inline fun <R> withRotationCompat(angle: Float, x: Float, y: Float, z: Float, block: UMatrixStack.() -> R) = UMatrixStack.Compat.get().withRotation(angle, x, y, z, block)
 
 //#if MODERN==0
-@Deprecated("Does not work in 1.17+.")
+@Deprecated("Does not work in 1.17+.", ReplaceWith("newMatrixCompat(block)"))
 inline fun <T, R> T.newMatrix(block: T.() -> R) {
     UGraphics.GL.pushMatrix()
     block.invoke(this)
     UGraphics.GL.popMatrix()
 }
 
-@Deprecated("Does not work in 1.17+.")
+@Deprecated("Does not work in 1.17+.", ReplaceWith("withColorCompat(block)"))
 inline fun <T, R> T.withColor(rgba: Int, block: T.() -> R) = newMatrix {
     UGraphics.color4f(
         rgba.getRed().toFloat(),
@@ -118,19 +170,19 @@ inline fun <T, R> T.withColor(rgba: Int, block: T.() -> R) = newMatrix {
     block.invoke(this)
 }
 
-@Deprecated("Does not work in 1.17+.")
+@Deprecated("Does not work in 1.17+.", ReplaceWith("withScaleCompat(block)"))
 inline fun <T, R> T.withScale(xScale: Float, yScale: Float, zScale: Float, block: T.() -> R) = newMatrix {
     UGraphics.GL.translate(xScale, yScale, zScale)
     block.invoke(this)
 }
 
-@Deprecated("Does not work in 1.17+.")
+@Deprecated("Does not work in 1.17+.", ReplaceWith("withTranslateCompat(block)"))
 inline fun <T, R> T.withTranslate(x: Float, y: Float, z: Float, block: T.() -> R) = newMatrix {
     UGraphics.GL.translate(x, y, z)
     block.invoke(this)
 }
 
-@Deprecated("Does not work in 1.17+.")
+@Deprecated("Does not work in 1.17+.", ReplaceWith("withRotationCompat(block)"))
 inline fun <T, R> T.withRotation(angle: Float, x: Float, y: Float, z: Float, block: T.() -> R) = newMatrix {
     UGraphics.GL.rotate(angle, x, y, z)
     block.invoke(this)
