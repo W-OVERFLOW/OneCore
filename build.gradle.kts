@@ -40,6 +40,7 @@ tasks.compileKotlin.setJvmDefault(if (platform.mcVersion >= 11400) "all" else "a
 loom.noServerRunConfigs()
 java {
     withSourcesJar()
+    withJavadocJar()
 }
 
 blossom {
@@ -203,7 +204,13 @@ tasks {
         exclude("mixins.onecore.json")
         exclude("fabric.mod.json")
     }
-    register<ShadowJar>("deobfShadowJar") {
+    named<Jar>("javadocJar") {
+        exclude("cc/woverflow/onecore/internal/**")
+        exclude("cc/woverflow/onecore/OneCore.**")
+        exclude("mixins.onecore.json")
+        exclude("fabric.mod.json")
+    }
+    val deobfShadowJar by registering(ShadowJar::class) {
         archiveClassifier.set("deobf")
         jar.orNull?.let { from(it.archiveFile) }
         configurations = listOf(shade, shadeMod)
@@ -211,9 +218,8 @@ tasks {
         if (project.platform.isForge) {
             exclude("fabric.mod.json", "**/module-info.class") //todo: fix this, for some reason it doesnt actually exclude it
         }
-        remapJar.orNull?.dependsOn(this)
     }
-    named<ShadowJar>("shadowJar") {
+    shadowJar {
         archiveClassifier.set("")
         remapJar.orNull?.let { from(it.archiveFile) }
         configurations = listOf(shade, shadeMod)
@@ -222,6 +228,7 @@ tasks {
             exclude("fabric.mod.json", "**/module-info.class")
         }
     }
+    shadowJar.orNull?.dependsOn(deobfShadowJar)
     assemble.orNull?.dependsOn(shadowJar)
 }
 
@@ -232,6 +239,7 @@ publishing {
             artifactId = "onecore-$platform"
 
             from(components["java"])
+            artifact(tasks["deobfShadowJar"])
         }
     }
 
