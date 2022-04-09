@@ -1,5 +1,6 @@
 //file:noinspection GroovyAssignabilityCheck
 
+/*/
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import dev.architectury.pack200.java.Pack200Adapter
 
@@ -78,7 +79,9 @@ repositories {
 
 configurations {
     include
-    implementation.extendsFrom(include)
+    api.extendsFrom(include)
+    includeMod
+    api.extendsFrom(includeMod)
 }
 
 dependencies {
@@ -87,7 +90,7 @@ dependencies {
     if (mcPlatform == "forge") {
         if (mcVersion < 11600) {
             mappings("de.oceanlabs.mcp:$mappingsVersion")
-            compileOnly ("gg.essential:essential-${mcVersionStr}-forge:1933") {
+            compileOnly (api("gg.essential:essential-${mcVersionStr}-forge:1933")) {
                 exclude(module: "keventbus")
             }
             runtimeOnly ('gg.essential:loader-launchwrapper:1.1.3') {
@@ -105,14 +108,14 @@ dependencies {
             include(("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.3.2"))
             include(("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.3.2"))
             include(("org.jetbrains.kotlinx:kotlinx-serialization-cbor-jvm:1.3.2"))
-            include(modImplementation("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
+            includeMod(("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
             include("org.dom4j:dom4j:$dom4jVersion")
 
-            include(modImplementation("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
+            includeMod(("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
             include("com.electronwill.night-config:core:$nightconfigVersion")
             include("com.electronwill.night-config:toml:$nightconfigVersion")
 
-            include(modImplementation("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
+            includeMod(("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
             mappings(loom.officialMojangMappings())
         }
         forge("net.minecraftforge:forge:$forgeVersion")
@@ -123,20 +126,19 @@ dependencies {
         modImplementation("net.fabricmc:fabric-language-kotlin:$fabricLanguageKotlinVersion")
         modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
 
-        include(modImplementation("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
+        includeMod(("gg.essential:elementa-${mcVersionStr}-${mcPlatform}:${elementaVersion}"))
         include("org.dom4j:dom4j:$dom4jVersion")
 
-        include(modImplementation("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
-        include("com.electronwill.night-config:core:$nightconfigVersion")
+        includeMod(("gg.essential:vigilance-${mcVersionStr}-${mcPlatform}:${vigilanceVersion}"))
         include("com.electronwill.night-config:toml:$nightconfigVersion")
 
-        include(modImplementation("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
+        includeMod(("gg.essential:universalcraft-${mcVersionStr}-${mcPlatform}:${universalCraftVersion}"))
     }
 
     include("com.github.Wyvest:keventbus:e8e05ea")
     compileOnly("org.spongepowered:mixin:0.8.5-SNAPSHOT")
-    include "org.apache.httpcomponents.client5:httpclient5:5.1.3"
-    include 'org.java-websocket:Java-WebSocket:1.5.2'
+    include("org.apache.httpcomponents.client5:httpclient5:5.1.3")
+    include('org.java-websocket:Java-WebSocket:1.5.2')
 }
 
 processResources {
@@ -169,26 +171,30 @@ processResources {
     }
 }
 
-remapJar {
-    archiveClassifier = "nodeps"
-    if (mcPlatform == "forge") {
-        exclude("fabric.mod.json", "**/module-info.class")
-    }
-}
+ */
 
-jar {
-    archiveClassifier = "deobf-nodeps"
-    manifest.attributes(
-            "ModSide": "CLIENT",
-            "TweakOrder": "0",
-            "MixinConfigs": "mixins.onecore.json",
-            'ForceLoadAsMod': true
-    )
-    if (mcPlatform == "forge") {
-        exclude("fabric.mod.json", "**/module-info.class") //todo: fix this, for some reason it doesnt actually exclude it
-    }
-}
+//remapJar {
+//    archiveClassifier = "nodeps"
+//    if (mcPlatform == "forge") {
+//        exclude("fabric.mod.json", "**/module-info.class")
+//    }
+//}
 
+
+//jar {
+//    archiveClassifier = "deobf-nodeps"
+//    manifest.attributes(
+//            "ModSide": "CLIENT",
+//            "TweakOrder": "0",
+//            "MixinConfigs": "mixins.onecore.json",
+//            'ForceLoadAsMod': true
+//    )
+//    if (mcPlatform == "forge") {
+//        exclude("fabric.mod.json", "**/module-info.class") //todo: fix this, for some reason it doesnt actually exclude it
+//    }
+//}
+
+/*
 sourcesJar {
     exclude("cc/woverflow/onecore/internal/**")
     exclude("cc/woverflow/onecore/OneCore.**")
@@ -203,23 +209,55 @@ sourceSets {
         }
     }
 }
-tasks.register('deobfShadowJar', ShadowJar).configure {
-    archiveClassifier.set('deobf')
-    from(jar.archiveFile)
-    configurations = [project.configurations.include]
-    duplicatesStrategy DuplicatesStrategy.EXCLUDE
-    if (mcPlatform == "forge") {
-        exclude("fabric.mod.json", "**/module-info.class")
+
+ */
+
+//tasks.register('deobfShadowJar', ShadowJar).configure {
+//    archiveClassifier.set('deobf')
+//    from(jar.archiveFile)
+//    configurations = [project.configurations.include]
+//    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+//    if (mcPlatform == "forge") {
+//        exclude("fabric.mod.json", "**/module-info.class")
+//    }
+//}
+
+//remapJar.dependsOn deobfShadowJar
+//shadowJar {
+//    archiveClassifier.set('')
+//    from(remapJar.archiveFile)
+//    configurations = [project.configurations.include]
+//    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+//    if (mcPlatform == "forge") {
+//        exclude("fabric.mod.json", "**/module-info.class")
+//    }
+//}
+//assemble.dependsOn shadowJar
+
+/*
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = "cc.woverflow"
+            artifactId = "${mod_name.toLowerCase(Locale.ENGLISH)}-${mcVersionStr}-${mcPlatform}"
+            version = "TEST_1"
+
+            from components.java
+        }
+    }
+
+    repositories {
+        if (hasProperty("woverflow.token")) {
+            logger.log(LogLevel.INFO, "Publishing to W-OVERFLOW")
+            maven {
+                url "https://repo.woverflow.cc/snapshots"
+                credentials {
+                    username = "wyvest"
+                    password = property("woverflow.token")
+                }
+            }
+        }
     }
 }
-remapJar.dependsOn deobfShadowJar
-shadowJar {
-    archiveClassifier.set('')
-    from(remapJar.archiveFile)
-    configurations = [project.configurations.include]
-    duplicatesStrategy DuplicatesStrategy.EXCLUDE
-    if (mcPlatform == "forge") {
-        exclude("fabric.mod.json", "**/module-info.class")
-    }
-}
-assemble.dependsOn shadowJar
+
+ */

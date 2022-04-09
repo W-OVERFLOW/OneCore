@@ -23,6 +23,10 @@ import java.util.concurrent.atomic.AtomicInteger
 //$$ import net.minecraft.text.ClickEvent
 //$$ import net.minecraft.text.LiteralText
 //$$ import cc.woverflow.onecore.internal.hook.ClickEventHook
+//$$ import net.fabricmc.loader.api.FabricLoader
+//$$ import java.io.File
+//$$ import net.fabricmc.loader.api.metadata.ModOrigin
+//$$ import kotlin.io.path.name
 //#endif
 
 /**
@@ -94,6 +98,25 @@ private var number = AtomicInteger(0)
 fun launchCoroutine(name: String = "OneCore Coroutine ${number.incrementAndGet()}", block: suspend CoroutineScope.() -> Unit) {
     CoroutineScope(Dispatchers.IO + CoroutineName(name)).launch(block = block)
 }
+
+//#if FABRIC==1
+//$$ fun getFileOfMod(id: String): File? {
+//$$     FabricLoader.getInstance().getModContainer(id).let {
+//$$         if (it.isPresent) {
+//$$             val container = it.get()
+//$$             return when (container.origin.kind) {
+//$$                 ModOrigin.Kind.PATH -> {
+//$$                     container.origin.paths.firstOrNull { file -> file.name.endsWith(".jar") }?.toFile()
+//$$                 }
+//$$                 else -> {
+//$$                     null
+//$$                 }
+//$$             }
+//$$         }
+//$$     }
+//$$     return null
+//$$ }
+//#endif
 
 /**
  * The Minecraft instance.
