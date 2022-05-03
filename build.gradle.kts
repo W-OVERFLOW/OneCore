@@ -74,20 +74,58 @@ val shadeMod: Configuration by configurations.creating {
     configurations.modApi.get().extendsFrom(this)
 }
 
+val includes by configurations.creating
+val includeMods by configurations.creating
+
 val relocated = registerRelocationAttribute("relocate-commons-codec") {
     relocate("org.apache.commons.codec", "org.apache.hc.client5.libs.codec")
+    relocate("org.slf4j", "org.java_websocket.libs.slf4j")
 }
 
 val commonsCodec by configurations.creating {
     attributes { attribute(relocated, true) }
 }
 
+fun DependencyHandlerScope.include(root: ResolvedDependency?,
+                                      dependencies: Set<ResolvedDependency>,
+                                      checkedDependencies: MutableSet<ResolvedDependency> = HashSet()) {
+    dependencies.forEach {
+        if (checkedDependencies.contains(it) || (it.moduleName.contains("kotlin")) || (it.moduleName.contains("slf4j")) || (it.moduleGroup.contains("fabricmc")))
+            return@forEach
+
+        shade(it.name) {
+            exclude(group = "org.jetbrains")
+            exclude(group = "org.jetbrains.kotlin")
+            exclude(group = "net.fabricmc")
+        }
+        println("Including -> ${it.name} from ${root?.name}")
+        checkedDependencies += it
+
+        include(root ?: it, it.children, checkedDependencies)
+    }
+}
+
+fun DependencyHandlerScope.includeMod(root: ResolvedDependency?,
+               dependencies: Set<ResolvedDependency>,
+               checkedDependencies: MutableSet<ResolvedDependency> = HashSet()) {
+    dependencies.forEach {
+        if (checkedDependencies.contains(it) || (it.moduleName.contains("kotlin")) || (it.moduleName.contains("slf4j")) || (it.moduleGroup.contains("fabricmc")))
+            return@forEach
+
+        shadeMod(it.name) {
+            exclude(group = "org.jetbrains")
+            exclude(group = "org.jetbrains.kotlin")
+            exclude(group = "net.fabricmc")
+        }
+        println("Including -> ${it.name} from ${root?.name}")
+        checkedDependencies += it
+
+        includeMod(root ?: it, it.children, checkedDependencies)
+    }
+}
+
 dependencies {
-    val elementaVersion: String by project
-    val dom4jVersion: String by project
     val vigilanceVersion: String by project
-    val nightconfigVersion: String by project
-    val universalCraftVersion: String by project
     if (platform.isForge) {
         if (platform.mcMinor < 16) {
             val essential = "gg.essential:essential-$platform:1933"
@@ -102,23 +140,10 @@ dependencies {
             }
             runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.0.0")
         } else {
-            shade(("org.jetbrains.kotlin:kotlin-stdlib:1.6.10"))
-            shade(("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10"))
-            shade(("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10"))
-            shade(("org.jetbrains.kotlin:kotlin-reflect:1.6.10"))
-            shade(("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0"))
-            shade(("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0"))
-            shade(("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.0"))
-            shade(("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.3.2"))
-            shade(("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.3.2"))
-            shade(("org.jetbrains.kotlinx:kotlinx-serialization-cbor-jvm:1.3.2"))
-            shadeMod(("gg.essential:elementa-$platform:${elementaVersion}"))
-
-            shadeMod(("gg.essential:vigilance-$platform:${vigilanceVersion}"))
-            shade("com.electronwill.night-config:core:$nightconfigVersion")
-            shade("com.electronwill.night-config:toml:$nightconfigVersion")
-
-            shadeMod(("gg.essential:universalcraft-$platform:${universalCraftVersion}"))
+            includeMods(("gg.essential:vigilance-$platform:${vigilanceVersion}")) {
+                exclude(group = "org.jetbrains")
+                exclude(group = "org.jetbrains.kotlin")
+            }
         }
     } else {
         val fabricApiVersion: String by project
@@ -127,27 +152,41 @@ dependencies {
         modImplementation ("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
         modImplementation("net.fabricmc:fabric-language-kotlin:$fabricLanguageKotlinVersion")
         modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
-
-        shadeMod(("gg.essential:elementa-$platform:${elementaVersion}"))
-
-        shadeMod(("gg.essential:vigilance-$platform:${vigilanceVersion}"))
-        shade("com.electronwill.night-config:toml:$nightconfigVersion")
-
-        shadeMod(("gg.essential:universalcraft-$platform:${universalCraftVersion}"))
+        includeMods(("gg.essential:vigilance-$platform:${vigilanceVersion}")) {
+            exclude(group = "org.jetbrains")
+            exclude(group = "org.jetbrains.kotlin")
+        }
     }
 
-    shade("com.github.Wyvest:keventbus:e8e05ea")
+    includes("com.github.Wyvest:keventbus:e8e05ea") {
+        isTransitive = false
+    }
     compileOnly("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+    commonsCodec("org.java-websocket:Java-WebSocket:1.5.3") {
+        exclude(module = "slf4j-api")
+    }
     commonsCodec("org.apache.httpcomponents.client5:httpclient5:5.1.3") {
         exclude(module = "commons-codec")
+        exclude(module = "slf4j-api")
     }
     commonsCodec("commons-codec:commons-codec:1.15")
-    shade(prebundle(commonsCodec))
-    shade("org.java-websocket:Java-WebSocket:1.5.2")
+    commonsCodec("org.slf4j:slf4j-api:1.7.36")
+    shade(api(prebundle(commonsCodec))!!)
+
+    val kotlinVersion = "1.6.10"
+    compileOnly(kotlin("stdlib", kotlinVersion))
+    compileOnly(kotlin("stdlib-jdk8", kotlinVersion))
+    compileOnly(kotlin("stdlib-jdk7", kotlinVersion))
+    compileOnly(kotlin("reflect", kotlinVersion))
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.1")
+
+    includeMod(null, includeMods.resolvedConfiguration.firstLevelModuleDependencies)
+    include(null, includes.resolvedConfiguration.firstLevelModuleDependencies)
 }
 
 tasks {
-
     processResources {
         // this will ensure that this task is redone when the versions change.
         inputs.property ("id", mod_id)
@@ -182,9 +221,6 @@ tasks {
 
     remapJar {
         archiveClassifier.set("nodeps")
-        if (project.platform.isForge) {
-            exclude("fabric.mod.json", "**/module-info.class")
-        }
     }
     jar {
         archiveClassifier.set("deobf-nodeps")
@@ -194,9 +230,6 @@ tasks {
             "MixinConfigs" to "mixins.onecore.json",
             "ForceLoadAsMod" to true
         ))
-        if (project.platform.isForge) {
-            exclude("fabric.mod.json", "**/module-info.class") //todo: fix this, for some reason it doesnt actually exclude it
-        }
     }
     named<Jar>("sourcesJar") {
         exclude("cc/woverflow/onecore/internal/**")
@@ -215,15 +248,14 @@ tasks {
         jar.orNull?.let { from(it.archiveFile) }
         configurations = listOf(shade, shadeMod)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        if (project.platform.isForge) {
-            exclude("fabric.mod.json", "**/module-info.class") //todo: fix this, for some reason it doesnt actually exclude it
-        }
     }
     shadowJar {
         archiveClassifier.set("")
         remapJar.orNull?.let { from(it.archiveFile) }
         configurations = listOf(shade, shadeMod)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    withType(Jar::class.java) {
         if (project.platform.isForge) {
             exclude("fabric.mod.json", "**/module-info.class")
         }
