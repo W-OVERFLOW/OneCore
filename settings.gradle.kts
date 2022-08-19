@@ -1,8 +1,9 @@
 pluginManagement {
     repositories {
-        maven("https://repo.woverflow.cc/")
+        maven("https://repo.polyfrost.cc/releases")
         // adding essential repo until i finish mirroing it
         maven("https://repo.essential.gg/repository/maven-public")
+        maven("https://maven.architectury.dev/")
         flatDir {
             dirs=setOf(file("../../libs"))
         }
@@ -22,10 +23,6 @@ rootProject.buildFileName = "root.gradle.kts"
 listOf(
     "1.8.9-forge",
     "1.12.2-forge",
-    "1.17.1-fabric",
-    "1.17.1-forge",
-    "1.18.1-forge",
-    "1.18.1-fabric"
 ).forEach { version ->
     include(":$version")
     project(":$version").apply {

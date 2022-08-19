@@ -63,7 +63,8 @@ loom {
 }
 
 repositories {
-    maven("https://repo.woverflow.cc/")
+    maven("https://repo.polyfrost.cc/releases")
+    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 }
 
 val shade: Configuration by configurations.creating {
@@ -276,13 +277,28 @@ publishing {
     }
 
     repositories {
-        if (hasProperty("woverflow.token")) {
-            logger.log(LogLevel.INFO, "Publishing to W-OVERFLOW")
-            maven(url = "https://repo.woverflow.cc/") {
-                credentials {
-                    username = "wyvest"
-                    password = property("woverflow.token") as? String
-                }
+        maven {
+            name = "releases"
+            url = uri("https://repo.polyfrost.cc/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+        maven {
+            name = "snapshots"
+            url = uri("https://repo.polyfrost.cc/snapshots")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+        maven {
+            name = "private"
+            url = uri("https://repo.polyfrost.cc/private")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
             }
         }
     }
